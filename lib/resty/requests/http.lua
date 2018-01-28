@@ -231,13 +231,19 @@ local function adjust_request_headers(ctx)
     if json then
         body = cjson.encode(json)
         config.body = body
+
+        if not config.headers["Content-Type"] then
+            headers["Content-Type"] = "application/json"
+        end
     end
 
     -- message length
     if util.is_func(body) then
         headers["Transfer-Encoding"] = "chunked"
+        headers["Content-Type"] = "application/octet-stream"
     elseif body then
         headers["Content-Length"] = #body
+        headers["Content-Type"] = "text/plain"
     end
 
     -- Host
@@ -247,11 +253,6 @@ local function adjust_request_headers(ctx)
 
     -- Connection
     headers["Connection"] = ctx.sessoin and "keep-alive" or "close"
-
-    -- Content-Length
-    if body and not config.headers["Content-Type"] then
-        headers["Content-Type"] = "application/octet-stream"
-    end
 
     local auth = config.auth
     if auth then

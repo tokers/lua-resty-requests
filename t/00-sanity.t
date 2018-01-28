@@ -188,7 +188,7 @@ GET /t1
 qq{GET /t3?usebody=true&af=b HTTP/1.1\r
 User-Agent: resty-requests/0.1\r
 Accept: */*\r
-Content-Type: application/octet-stream\r
+Content-Type: text/plain\r
 Connection: close\r
 Content-Length: 18\r
 Host: 127.0.0.1\r

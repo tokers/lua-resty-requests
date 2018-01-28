@@ -108,9 +108,7 @@ local function config(opts)
     -- 6) redirect
     config.allow_redirects = opts.allow_redirects
     if config.allow_redirects then
-        config.redirect_max_times = opts.redirect_max_times or
-                                    DEFAULT_REDIRECT_MAX_TIMES
-
+        config.redirect_max_times = opts.redirect_max_times or 10
         if config.redirect_max_times < 1 then
             config.redirect_max_times = 1
         end
