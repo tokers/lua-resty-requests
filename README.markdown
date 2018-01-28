@@ -1,7 +1,7 @@
 Name
 ====
 
-lua-resty-requests - yet another HTTP library based on cosocket
+lua-resty-requests - Yet Another HTTP Library for OpenResty.
 
 Table of Contents
 =================
@@ -9,11 +9,20 @@ Table of Contents
 * [Name](#name)
 * [Synopsis](#synopsis)
 * [Status](#status)
-* [HTTP Methods](#http-methods)
+* [Methods](#methods)
+	* [request](#request)
+	* [state](#state)
+	* [get](#get)
+	* [head](#head)
+	* [post](#post)
+	* [put](#put)
+	* [post](#post)
+	* [delete](#delete)
+	* [options](#options)
+	* [patch](#patch)
 * [Response Object](#response-object)
 * [Connection Management](#connection-management)
 * [Session](#session)
-* [Changes](#changes)
 * [Author](#author)
 * [Copyright and License](#copyright-and-license)
 
@@ -37,78 +46,87 @@ if not r then
     return
 end
 
-assert(r.method == "GET")
-assert(r.url == url)
-ngx.say(r.status_code)
+-- read all body
+local body = r:body()
+ngx.print(body)
 
--- stream
-if r.body then
-    repeat
-        local chunk, err = r.body(8192)
-        if not chunk then
-            ngx.log(ngx.ERR, err)
-            return
-        end
-        ngx.say(chunk)
-    until chunk == ""
-end
+-- or you can iterate the response body
+-- while true do
+--     local chunk, err = r:iter_content(4096)
+--     if not chunk then
+--         ngx.log(ngx.ERR, err)
+--         return
+--     end
+--
+--     if chunk == "" then
+--         break
+--     end
+--
+--     ngx.print(chunk)
+-- end
 ```
 
-HTTP Methods
-============
+Methods
+=======
 
-`lua-resty-requests` now supports these stardand HTTP methods:
+### request
 
-* GET
-* HEAD
-* OPTIONS
-* POST
-* PUT
-* DELETE
+**syntax**: *local r, err = requests.request(method, url, opts?)*
 
-All of them have their own methods with the same name except all in lower case(e.g. `requests.get`), also
-they maintain the same infrastructure which accept an url and an optional Lua table:
+This is the pivotal method in `lua-resty-requests`, it will return a [response object](response-object) `r`. In the case of fail, `nil` and a Lua string which describles the corresponding error will be given.
 
-```lua
-local r, err = requests.get(url, opts)
-```
+The first param `method`, is the HTTP method that you want to use(same as
+HTTP's semantic), which takes a Lua string and the value can be:
 
-In the case of fail, `nil` and a string which describles the corresponding error will be given.
+* `GET`
+* `HEAD`
+* `POST`
+* `PUT`
+* `DELETE`
+* `OPTIONS`
+* `PATCH`
 
-The optional Lua table can be specified, which contains some options:
+The second param `url`, just takes the literal meaning(i.e. Uniform Resource Location),
+for instance, `http://foo.com/blah?a=b`, you can omit the scheme prefix and as the default scheme,
+`http` will be selected.
+
+The third param, an optional Lua table, which contains a number of  options:
 
 * `headers` holds the custom request headers.
 
-* `allow_redirects` specify whether redirecting to the target url(specified by `Location` header) or not when the status code is 3xx(301 and 302 so far).
+* `allow_redirects` specifies whether redirecting to the target url(specified by `Location` header) or not when the status code is `301` or `302`(`303`, `307` and `308` haven't been supported yet).
 
-* `redirect_max_times` specify the redirect limits, default is 10.
+* `redirect_max_times` specifies the redirect limits, default is 10.
 
-* `keepalive` specify whether make the connection persistent.
+* `body`, the request body, can be:
+	* a Lua string, or
+	* a Lua function, takes no param and return a piece of data(string) or an empty Lua string to represent EOF
 
-* `body`, the request body, you can pass a Lua string or function which returns a Lua string each time lua-resty-requests invokes it(empty string indicates the end of body).
-
-* `error_filter`
- holds a Lua function which accepts two arguments, `state` and `err`, `err` describes the error message and `state` is always one of these values:
+* `error_filter`,
+ holds a Lua function which takes two params, `state` and `err`. 
+ the param `err` describes the error and `state` is always one of these values(represents the current stage):
 
  ```lua
- requests.HTTP_STATE.CONNECT
- requests.HTTP_STATE.HANDSHAKE
- requests.HTTP_STATE.SEND_HEADER
- requests.HTTP_STATE.SEND_BODY
- requests.HTTP_STATE.RECV_HEADER
- requests.HTTP_STATE.RECV_BODY
- requests.HTTP_STATE.CLOSE
+ requests.CONNECT
+ requests.HANDSHAKE
+ requests.SEND_HEADER
+ requests.SEND_BODY
+ requests.RECV_HEADER
+ requests.RECV_BODY
+ requests.CLOSE
  ```
 
- whenever exception happens in `connection`, `ssl handshake`, `send  header`, `send body`, `receive header`, `receive body` and `close connection`,
- the `error_filter` will be triggered, one can do some custom operations about the corrsponding error and state.
 
 * `timeouts`, which is an array-like table, `timeouts[1]`, `timeouts[2]` and `timeouts[3]` represents `connect timeout`, `send timeout` and `read timeout` respectively.
 
-* `version` specify the HTTP version you want to use. Only `10`(HTTP/1.0) and `11`(HTTP/1.1) can be accepted for now, default is `11`.
+* `http10` specify whether the `HTTP/1.0` should be used, the default verion is `HTTP/1.1`.
 
-* `ssl` holds a Lua table, now only a bool option `ssl.verfiy` can be set which specifies whether verfiy the server certificate.
-* `proxies` specify proxy servers, whose form is like
+* `ssl` holds a Lua table, with three fields:
+	* `verify`, controls whether to perform SSL verification
+	* `server_name`, is used to specify the server name for the new TLS extension Server Name Indication (SNI)
+	* `reused_session`, takes a former SSL session userdata returned by a previous sslhandshake call for exactly the same target
+
+* `proxies` specify proxy servers, the form is like
 
 ```lua
 {
@@ -117,42 +135,58 @@ The optional Lua table can be specified, which contains some options:
 }
 ```
 
+There also some "short path" options:
+
+* `auth`, to do the Basic HTTP Authorization, takes a Lua table contains `user` and `pass`, e.g. when `auth` is:
+
+```lua
+{
+	name = "alex",
+	pass = "123456"
+}
+```
+
+Request header `Authorzation` will be added, and the value is `Basic bmlsOm5pbA==`.
+
+* `json`, takes a Lua table, it will be serialized by `cjson`, the serialized data will be sent as the request body, and it takes the priority when both `json` and `body` is specified.
+
+* `cookie`, takes a Lua table, the key-value pairs will be organized according to the `Cookie` header's rule, e.g. `cookies` is:
+
+```lua
+{
+	["PHPSESSID"] = "298zf09hf012fh2",
+	["csrftoken"] = "u32t4o3tb3gg43"
+}
+```
+
+The `Cookie` header will be `PHPSESSID=298zf09hf012fh2; csrftoken=u32t4o3tb3gg43 `.
+
+### state
+
+### get
+
+### head
+
+### post
+
+### put
+
+### post
+
+### delete
+
+### options
+
+### patch
+
 Response Object
 ===============
-
-A HTTP response object `r` will be returned from these the methods, which is a Lua table contains some options.
-
-* `headers` holds the response headers(case-insensitive).
-* `body`, this is a Lua function as an "iterator", which accepts an argument `size`, you will get a piece of body whenever you invoke it. In the case of fail, `nil` and a string which describles the corresponding error will be given.
-
-* `method`, the request method.
-
-* `status_code`, the HTTP status code.
-
-* `status_line`, the raw status line of this HTTP response(without the linefeed).
-* `url`, the request url.
-
-* `history`, an array-like Lua table, records request backtrace, each response object placed in order of request.
-
-* `http_version`, HTTP version of this HTTP response.
-
-* `close`, holds a Lua function, you can close the TCP connection forcibly by invoking this.
-
 
 Session
 =======
 
-Oops, i have not ready to implement this yet :).
+Not implemented yet.
 
-Connection Management
-=====================
-
-You needn't attention the connection underlying the request, the connection will be closed automatically. Of course you can close the connection by yourself using `r.close()`.
-
-Changes
-=======
-
-Please see [Changes](CHANGES.markdown).
 
 Author
 ======
@@ -164,7 +198,7 @@ Copyright and License
 
 The bundle itself is licensed under the 2-clause BSD license.
 
-Copyright (c) 2017, Alex Zhang.
+Copyright (c) 2017-2018, Alex Zhang.
 
 This module is licensed under the terms of the BSD license.
 
