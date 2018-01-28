@@ -640,7 +640,7 @@ local function send(ctx)
                 data = str_format("%x\r\n%s\r\n", #chunk, chunk)
             end
 
-            bytes, err = ctx.sock:send(data)
+            local bytes, err = ctx.sock:send(data)
             if err then
                 return nil, err
             end
@@ -734,7 +734,7 @@ local function receive(ctx)
                 tab_insert(r.headers[name], value)
 
             else
-                r.headers[name] = utils.new_tab(4, 0)
+                r.headers[name] = util.new_tab(4, 0)
                 r.headers[name][1] = ovalue
                 r.headers[name][2] = value
             end
