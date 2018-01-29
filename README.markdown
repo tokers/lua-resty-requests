@@ -3,6 +3,8 @@ Name
 
 lua-resty-requests - Yet Another HTTP Library for OpenResty.
 
+![Build Status](https://travis-ci.org/tokers/lua-resty-requests.svg?branch=master)
+
 Table of Contents
 =================
 
@@ -106,13 +108,13 @@ The third param, an optional Lua table, which contains a number of  options:
 * `error_filter`,
  holds a Lua function which takes two params, `state` and `err`.
  the param `err` describes the error and `state` is always one of these values(represents the current stage):
- * requests.CONNECT
- * requests.HANDSHAKE
- * requests.SEND_HEADER
- * requests.SEND_BODY
- * requests.RECV_HEADER
- * requests.RECV_BODY
- * requests.CLOSE
+    * requests.CONNECT
+    * requests.HANDSHAKE
+    * requests.SEND_HEADER
+    * requests.SEND_BODY
+    * requests.RECV_HEADER
+    * requests.RECV_BODY
+    * requests.CLOSE
 
 You can use the method [requests.state](#state) to get the textual meaning of these values.
 
@@ -141,8 +143,8 @@ There also some "short path" options:
 
 ```lua
 {
-        name = "alex",
-        pass = "123456"
+    name = "alex",
+    pass = "123456"
 }
 ```
 
@@ -150,12 +152,12 @@ Request header `Authorzation` will be added, and the value is `Basic bmlsOm5pbA=
 
 * `json`, takes a Lua table, it will be serialized by `cjson`, the serialized data will be sent as the request body, and it takes the priority when both `json` and `body` is specified.
 
-* `cookie`, takes a Lua table, the key-value pairs will be organized according to the `Cookie` header's rule, e.g. `cookies` is:
+* `cookie`, takes a Lua table, the key-value pairs will be organized according to the `Cookie` header's rule, e.g. `cookie` is:
 
 ```lua
 {
-        ["PHPSESSID"] = "298zf09hf012fh2",
-        ["csrftoken"] = "u32t4o3tb3gg43"
+    ["PHPSESSID"] = "298zf09hf012fh2",
+    ["csrftoken"] = "u32t4o3tb3gg43"
 }
 ```
 
