@@ -98,8 +98,6 @@ The third param, an optional Lua table, which contains a number of  options:
 
 * `allow_redirects` specifies whether redirecting to the target url(specified by `Location` header) or not when the status code is `301` or `302`(`303`, `307` and `308` haven't been supported yet).
 
-* `allow_redirects` specifies whether redirecting to the target url(specified by `Location` header) or not when the status code is `301` or `302`(`303`, `307` and `308` haven't been supported yet).
-
 * `redirect_max_times` specifies the redirect limits, default is 10.
 
 * `body`, the request body, can be:
