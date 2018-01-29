@@ -124,8 +124,8 @@ local function config(opts)
     local auth = opts.auth
     if auth then
         config.auth = {
-            user = tostring(auth[1]),
-            pass = tostring(auth[2]),
+            user = tostring(auth.user),
+            pass = tostring(auth.pass),
         }
     end
 

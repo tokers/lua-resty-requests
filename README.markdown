@@ -142,12 +142,12 @@ There also some "short path" options:
 
 ```lua
 {
-    name = "alex",
+    user = "alex",
     pass = "123456"
 }
 ```
 
-Request header `Authorzation` will be added, and the value is `Basic bmlsOm5pbA==`.
+Request header `Authorzation` will be added, and the value is `Basic YWxleDoxMjM0NTY=`.
 
 * `json`, takes a Lua table, it will be serialized by `cjson`, the serialized data will be sent as the request body, and it takes the priority when both `json` and `body` is specified.
 

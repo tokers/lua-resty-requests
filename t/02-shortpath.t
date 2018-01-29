@@ -100,7 +100,7 @@ location = /t {
 
         local opts = {
             auth = {
-                name = "alex",
+                user = "alex",
                 pass = "123456"
             }
         }
@@ -126,7 +126,7 @@ GET /t
 qq{GET /t1 HTTP/1.1\r
 User-Agent: resty-requests/0.1\r
 Accept: */*\r
-Authorization: Basic bmlsOm5pbA==\r
+Authorization: Basic YWxleDoxMjM0NTY=\r
 Connection: close\r
 Host: 127.0.0.1\r
 \r
@@ -134,6 +134,7 @@ Host: 127.0.0.1\r
 
 --- no_error_log
 [error]
+--- ONLY
 
 
 === TEST 3: json
