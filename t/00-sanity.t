@@ -49,6 +49,14 @@ our $http_config = << 'EOC';
                 end
             }
         }
+
+        location = /t5 {
+            content_by_lua_block {
+                ngx.status = 200
+                ngx.header["X-AAA"] = {"a", "b", "c"}
+                ngx.exit(200)
+            }
+        }
     }
 EOC
 
@@ -363,6 +371,36 @@ GET /t1
 
 --- response_body
 OK
+
+--- no_error_log
+[error]
+
+
+=== TEST 7: GET request with duplicate response headers
+
+--- http_config eval: $::http_config
+
+--- config
+location /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "http://127.0.0.1:10088/t5"
+        local r, err = requests.get(url)
+        if not r then
+            ngx.log(ngx.ERR, err)
+            return
+        end
+
+        ngx.print(r.headers["x-aaa"])
+
+        r:close()
+    }
+}
+
+--- request
+GET /t1
+
+--- response_body: a,b,c
 
 --- no_error_log
 [error]

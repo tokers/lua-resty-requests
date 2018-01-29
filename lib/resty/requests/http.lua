@@ -274,7 +274,7 @@ end
 local function adjust_response_headers(r)
     for k, v in pairs(r.headers) do
         if util.is_tab(v) then
-            r.headers[k] = table_concat(v, ",")
+            r.headers[k] = tab_concat(v, ",")
         end
     end
 
@@ -725,6 +725,8 @@ local function receive(ctx)
             -- without changing the semantics of the message,
             -- by appending each subsequent field value
             -- to the combined field value in order, separated by a comma.
+
+            name = str_lower(name)
 
             local ovalue = r.headers[name]
             if not ovalue then
