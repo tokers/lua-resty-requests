@@ -24,6 +24,7 @@ Table of Contents
 * [Response Object](#response-object)
 * [Connection Management](#connection-management)
 * [Session](#session)
+* [TODO](#todo)
 * [Author](#author)
 * [Copyright and License](#copyright-and-license)
 
@@ -267,6 +268,13 @@ Session
 =======
 
 Not implemented yet.
+
+TODO
+====
+
+* requests.session
+* other interesting features...
+* introduce lua-tablepool to reduce the allocation and free for small tables
 
 
 Author
