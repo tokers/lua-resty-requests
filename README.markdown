@@ -10,16 +10,15 @@ Table of Contents
 * [Synopsis](#synopsis)
 * [Status](#status)
 * [Methods](#methods)
-	* [request](#request)
-	* [state](#state)
-	* [get](#get)
-	* [head](#head)
-	* [post](#post)
-	* [put](#put)
-	* [post](#post)
-	* [delete](#delete)
-	* [options](#options)
-	* [patch](#patch)
+    * [request](#request)
+    * [state](#state)
+    * [get](#get)
+    * [head](#head)
+    * [post](#post)
+    * [put](#put)
+    * [delete](#delete)
+    * [options](#options)
+    * [patch](#patch)
 * [Response Object](#response-object)
 * [Connection Management](#connection-management)
 * [Session](#session)
@@ -96,25 +95,26 @@ The third param, an optional Lua table, which contains a number of  options:
 
 * `allow_redirects` specifies whether redirecting to the target url(specified by `Location` header) or not when the status code is `301` or `302`(`303`, `307` and `308` haven't been supported yet).
 
+* `allow_redirects` specifies whether redirecting to the target url(specified by `Location` header) or not when the status code is `301` or `302`(`303`, `307` and `308` haven't been supported yet).
+
 * `redirect_max_times` specifies the redirect limits, default is 10.
 
 * `body`, the request body, can be:
-	* a Lua string, or
-	* a Lua function, takes no param and return a piece of data(string) or an empty Lua string to represent EOF
+        * a Lua string, or
+        * a Lua function, takes no param and return a piece of data(string) or an empty Lua string to represent EOF
 
 * `error_filter`,
- holds a Lua function which takes two params, `state` and `err`. 
+ holds a Lua function which takes two params, `state` and `err`.
  the param `err` describes the error and `state` is always one of these values(represents the current stage):
+ * requests.CONNECT
+ * requests.HANDSHAKE
+ * requests.SEND_HEADER
+ * requests.SEND_BODY
+ * requests.RECV_HEADER
+ * requests.RECV_BODY
+ * requests.CLOSE
 
- ```lua
- requests.CONNECT
- requests.HANDSHAKE
- requests.SEND_HEADER
- requests.SEND_BODY
- requests.RECV_HEADER
- requests.RECV_BODY
- requests.CLOSE
- ```
+You can use the method [requests.state](#state) to get the textual meaning of these values.
 
 
 * `timeouts`, which is an array-like table, `timeouts[1]`, `timeouts[2]` and `timeouts[3]` represents `connect timeout`, `send timeout` and `read timeout` respectively.
@@ -122,9 +122,9 @@ The third param, an optional Lua table, which contains a number of  options:
 * `http10` specify whether the `HTTP/1.0` should be used, the default verion is `HTTP/1.1`.
 
 * `ssl` holds a Lua table, with three fields:
-	* `verify`, controls whether to perform SSL verification
-	* `server_name`, is used to specify the server name for the new TLS extension Server Name Indication (SNI)
-	* `reused_session`, takes a former SSL session userdata returned by a previous sslhandshake call for exactly the same target
+        * `verify`, controls whether to perform SSL verification
+        * `server_name`, is used to specify the server name for the new TLS extension Server Name Indication (SNI)
+        * `reused_session`, takes a former SSL session userdata returned by a previous sslhandshake call for exactly the same target
 
 * `proxies` specify proxy servers, the form is like
 
@@ -141,8 +141,8 @@ There also some "short path" options:
 
 ```lua
 {
-	name = "alex",
-	pass = "123456"
+        name = "alex",
+        pass = "123456"
 }
 ```
 
@@ -154,33 +154,112 @@ Request header `Authorzation` will be added, and the value is `Basic bmlsOm5pbA=
 
 ```lua
 {
-	["PHPSESSID"] = "298zf09hf012fh2",
-	["csrftoken"] = "u32t4o3tb3gg43"
+        ["PHPSESSID"] = "298zf09hf012fh2",
+        ["csrftoken"] = "u32t4o3tb3gg43"
 }
 ```
 
 The `Cookie` header will be `PHPSESSID=298zf09hf012fh2; csrftoken=u32t4o3tb3gg43 `.
 
 ### state
+**syntax**: *local state_name = requests.state(state)*
+
+The method is used for getting the textual meaning of these values:
+
+ * requests.CONNECT
+ * requests.HANDSHAKE
+ * requests.SEND_HEADER
+ * requests.SEND_BODY
+ * requests.RECV_HEADER
+ * requests.RECV_BODY
+ * requests.CLOSE
+
+a Lua string `"unknown"` will be returned if `state` isn't one of the above values.
 
 ### get
+**syntax**: *local r, err = requests.get(url, opts?)*
+
+Sends a HTTP GET request. This is identical with
+
+```lua
+requests.request("GET", url, opts)
+```
 
 ### head
+**syntax**: *local r, err = requests.head(url, opts?)*
+
+Sends a HTTP HEAD request. This is identical with
+
+```lua
+requests.request("HEAD", url, opts)
+```
 
 ### post
+**syntax**: *local r, err = requests.post(url, opts?)*
+
+Sends a HTTP POST request. This is identical with
+
+```lua
+requests.request("POST", url, opts)
+```
 
 ### put
+**syntax**: *local r, err = requests.put(url, opts?)*
 
-### post
+Sends a HTTP PUT request. This is identical with
+
+```lua
+requests.request("PUT", url, opts)
+```
 
 ### delete
+**syntax**: *local r, err = requests.delete(url, opts?)*
+
+Sends a HTTP DELETE request. This is identical with
+
+```lua
+requests.request("DELETE", url, opts)
+```
 
 ### options
+**syntax**: *local r, err = requests.options(url, opts?)*
+
+Sends a HTTP OPTIONS request. This is identical with
+
+```lua
+requests.request("OPTIONS", url, opts)
+```
 
 ### patch
+**syntax**: *local r, err = requests.patch(url, opts?)*
+
+Sends a HTTP PATCH request. This is identical with
+
+```lua
+requests.request("PATCH", url, opts)
+```
 
 Response Object
 ===============
+
+Methods like `requests.get` and others will return a response object `r`, which can be manipulated by the following methods and variables:
+
+* `url`, the url passed from caller
+* `method`, the request method, e.g. `POST`
+* `status line`, the raw status line(received from the remote)
+* `status_code`, the HTTP status code
+* `http_version`, the HTTP version of response, e.g. `HTTP/1.1`
+* `headers`, a Lua table represents the HTTP response headers(case-insensitive)
+* `close`, holds a Lua function, used to close(keepalive) the underlying TCP connection
+* `iter_content`, which is also a Lua function, emits a part of response body(decoded from chunked format) each time called. 
+
+This function accepts an optional param `size` to specify the size of body that the caller wants, when absent, `iter_content` returns `8192` bytes when the response body is plain or returns a piece of chunked data if the resposne body is chunked.
+
+In case of failure, `nil` and a Lua string described the error will be returned.
+
+* `body`, also holds a Lua function that returns the whole response body.
+
+In case of failure, `nil` and a Lua string described the error will be returned.
 
 Session
 =======
