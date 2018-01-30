@@ -22,7 +22,6 @@ Table of Contents
     * [options](#options)
     * [patch](#patch)
 * [Response Object](#response-object)
-* [Connection Management](#connection-management)
 * [Session](#session)
 * [TODO](#todo)
 * [Author](#author)
@@ -75,7 +74,7 @@ Methods
 
 **syntax**: *local r, err = requests.request(method, url, opts?)*
 
-This is the pivotal method in `lua-resty-requests`, it will return a [response object](response-object) `r`. In the case of fail, `nil` and a Lua string which describles the corresponding error will be given.
+This is the pivotal method in `lua-resty-requests`, it will return a [response object](#response-object) `r`. In the case of fail, `nil` and a Lua string which describles the corresponding error will be given.
 
 The first param `method`, is the HTTP method that you want to use(same as
 HTTP's semantic), which takes a Lua string and the value can be:
@@ -133,6 +132,21 @@ You can use the method [requests.state](#state) to get the textual meaning of th
 {
     http = { host = "127.0.0.1", port = 80 },
     https = { host = "192.168.1.3", port = 443 },
+}
+```
+
+* `hooks`, also a Lua table, represents the hook system that you can use to
+manipulate portions of the request process. Available hooks are:
+  * `response`, will be triggered immediately after receiving the response
+  headers
+
+you can assign Lua functions to hooks, these functions accept the [response object](#response-object) as the unique param.
+
+```lua
+local hooks = {
+    response = function(r)
+        ngx.log(ngx.WARN, "during requests process")
+    end
 }
 ```
 
