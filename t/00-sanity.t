@@ -404,3 +404,53 @@ GET /t1
 
 --- no_error_log
 [error]
+
+
+=== TEST 8: event hooks
+
+--- http_config eval: $::http_config
+
+--- config
+location /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "http://127.0.0.1:10088/t1?test=event_hook"
+        local hook = function(r)
+            ngx.print(r:body())
+            ngx.log(ngx.WARN, "event hook")
+        end
+
+        local opts = {
+            hooks = {
+                response = hook
+            }
+        }
+
+        local r, err = requests.get(url, opts)
+        if not r then
+            ngx.log(ngx.ERR, err)
+            return
+        end
+
+        r:close()
+    }
+}
+
+--- request
+GET /t1
+
+--- response_body eval
+qq{GET /t1?test=event_hook HTTP/1.1\r
+User-Agent: resty-requests/0.1\r
+Accept: */*\r
+Connection: close\r
+Host: 127.0.0.1\r
+\r
+};
+
+--- no_error_log
+[error]
+
+--- grep_error_log: event hook
+--- grep_error_log_out
+event hook

@@ -73,7 +73,7 @@ end
 
 local function config(opts)
     opts = opts or {}
-    local config = new_tab(0, 11)
+    local config = new_tab(0, 12)
 
     -- 1) timeouts
     local timeouts = opts.timeouts
@@ -146,6 +146,12 @@ local function config(opts)
     local json = opts.json
     if json then
         config.json = json
+    end
+
+    -- 12) event hooks
+    local hooks = opts.hooks
+    if hooks then
+        config.hooks = hooks
     end
 
     return config

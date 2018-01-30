@@ -851,6 +851,11 @@ _M.request = function(method, url, opts)
         return nil, err
     end
 
+    local hooks = config.hooks
+    if hooks and hooks.response then
+        hooks.response(r)
+    end
+
     if allow_redirects(r) then
         return redirect(r)
     end
