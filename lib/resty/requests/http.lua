@@ -256,7 +256,7 @@ local function adjust_request_headers(ctx)
 
     local auth = config.auth
     if auth then
-        headers["Authorization"] = util.basic_auth(auth.user, auth.pass)
+        headers["Authorization"] = auth
     end
 
     local cookie = config.cookie

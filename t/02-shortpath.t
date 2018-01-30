@@ -134,7 +134,6 @@ Host: 127.0.0.1\r
 
 --- no_error_log
 [error]
---- ONLY
 
 
 === TEST 3: json

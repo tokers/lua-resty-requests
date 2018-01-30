@@ -65,6 +65,12 @@ local function header_dict(dict, narr, nrec)
 end
 
 
+local function basic_auth(user, pass)
+    local token = base64(("%s:%s"):format(user, pass))
+    return ("Basic %s"):format(token)
+end
+
+
 local function config(opts)
     opts = opts or {}
     local config = new_tab(0, 11)
@@ -123,10 +129,11 @@ local function config(opts)
     -- 9) auth
     local auth = opts.auth
     if auth then
-        config.auth = {
-            user = tostring(auth.user),
-            pass = tostring(auth.pass),
-        }
+        if is_str(auth) then
+            config.auth = auth
+        else
+            config.auth = basic_auth(tostring(auth.user), tostring(auth.pass))
+        end
     end
 
     -- 10) cookie
@@ -142,12 +149,6 @@ local function config(opts)
     end
 
     return config
-end
-
-
-local function basic_auth(user, pass)
-    local token = base64(("%s:%s"):format(user, pass))
-    return ("Basic %s"):format(token)
 end
 
 
