@@ -1,17 +1,15 @@
 -- Copyright (C) Alex Zhang
 
-local type   = type
-local pcall  = pcall
-local pairs  = pairs
+local type = type
+local pcall = pcall
+local pairs = pairs
 local rawget = rawget
-local lower  = string.lower
-local upper  = string.upper
-
 local tostring = tostring
-
+local setmetatable = setmetatable
+local lower = string.lower
+local upper = string.upper
 local ngx_gsub = ngx.re.gsub
-local ngx_sub  = ngx.re.sub
-
+local ngx_sub = ngx.re.sub
 local base64 = ngx.encode_base64
 
 local _M = { _VERSION = '0.1' }
@@ -32,7 +30,31 @@ end
 
 local BUILTIN_HEADERS = {
     ["Accept"]     = "*/*",
-    ["User-Agent"] = "resty-requests/0.1",
+    ["User-Agent"] = "resty-requests",
+}
+
+local STATE = {
+    UNREADY = -1,
+    READY = 0,
+    CONNECT = 1,
+    HANDSHAKE = 2,
+    SEND_HEADER = 3,
+    SEND_BODY = 4,
+    RECV_HEADER = 5,
+    RECV_BODY = 6,
+    CLOSE = 7,
+}
+
+local STATE_NAME = {
+    [STATE.UNREADY] = "unready",
+    [STATE.READY] = "ready",
+    [STATE.CONNECT] = "connect",
+    [STATE.HANDSHAKE] = "handshake",
+    [STATE.SEND_HEADER] = "send_header",
+    [STATE.SEND_BODY] = "send_body",
+    [STATE.RECV_HEADER] = "recv_header",
+    [STATE.RECV_BODY] = "recv_body",
+    [STATE.CLOSE] = "close",
 }
 
 local HTTP10 = "HTTP/1.0"
@@ -56,12 +78,12 @@ local function normalize_header_name(name)
 end
 
 
-local function header_dict(dict, narr, nrec)
-    if not dict then
-        dict = new_tab(narr, nrec)
+local function dict(d, narr, nrec)
+    if not d then
+        d = new_tab(narr, nrec)
     end
 
-    return setmetatable(dict, header_mt)
+    return setmetatable(d, header_mt)
 end
 
 
@@ -91,7 +113,7 @@ local function config(opts)
     end
 
     -- 3) request headers
-    config.headers = header_dict(opts.headers, 0, 5)
+    config.headers = dict(opts.headers, 0, 5)
 
     for k, v in pairs(config.headers) do
         local name = normalize_header_name(k)
@@ -132,7 +154,7 @@ local function config(opts)
         if is_str(auth) then
             config.auth = auth
         else
-            config.auth = basic_auth(tostring(auth.user), tostring(auth.pass))
+            config.auth = basic_auth(auth.user, auth.pass)
         end
     end
 
@@ -158,13 +180,17 @@ local function config(opts)
 end
 
 
-_M.new_tab     = new_tab
-_M.is_str      = is_str
-_M.is_num      = is_num
-_M.is_tab      = is_tab
-_M.is_func     = is_func
-_M.config      = config
-_M.header_dict = header_dict
-_M.basic_auth  = basic_auth
+_M.new_tab = new_tab
+_M.is_str = is_str
+_M.is_num = is_num
+_M.is_tab = is_tab
+_M.is_func = is_func
+_M.config = config
+_M.dict = dict
+_M.basic_auth = basic_auth
+_M.DEFAULT_TIMEOUTS = DEFAULT_TIMEOUTS
+_M.BUILTIN_HEADERS = BUILTIN_HEADERS
+_M.STATE = STATE
+_M.STATE_NAME = STATE_NAME
 
 return _M

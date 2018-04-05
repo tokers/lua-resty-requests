@@ -44,9 +44,9 @@ location /t1 {
         end
 
         ngx.say(r.status_code)
-        local data = r:body()
+        local data, err = r:body()
         -- data is ""
-        ngx.say(data)
+        ngx.say(data, err)
 
         local data, err = r:iter_content()
         ngx.say(data, err)
@@ -60,7 +60,7 @@ GET /t1
 --- status_code: 200
 --- response_body
 200
-
+nileof
 nileof
 
 --- no_error_log
@@ -84,9 +84,9 @@ location /t1 {
         end
 
         ngx.say(r.status_code)
-        local data = r:body()
+        local data, err = r:body()
         -- data is ""
-        ngx.say(data)
+        ngx.say(data, err)
 
         local data, err = r:iter_content()
         ngx.say(data, err)
@@ -100,7 +100,7 @@ GET /t1
 --- status_code: 200
 --- response_body
 200
-
+nileof
 nileof
 
 --- no_error_log
