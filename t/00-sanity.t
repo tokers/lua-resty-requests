@@ -96,9 +96,9 @@ GET /t
 
 --- response_body eval
 qq{GET /t1?foo=bar&c= HTTP/1.1\r
-User-Agent: resty-requests/0.1\r
+User-Agent: resty-requests\r
 Accept: */*\r
-Connection: close\r
+Connection: keep-alive\r
 Host: 127.0.0.1\r
 \r
 };
@@ -149,9 +149,9 @@ GET /t
 
 --- response_body eval
 qq{GET /t1 HTTP/1.1\r
-User-Agent: resty-requests/0.1\r
+User-Agent: resty-requests\r
 Accept: */*\r
-Connection: close\r
+Connection: keep-alive\r
 Cache-Control: max-age=0\r
 Host: 127.0.0.1\r
 \r
@@ -194,10 +194,10 @@ GET /t1
 --- status_code: 200
 --- response_body eval
 qq{GET /t3?usebody=true&af=b HTTP/1.1\r
-User-Agent: resty-requests/0.1\r
+User-Agent: resty-requests\r
 Accept: */*\r
 Content-Type: text/plain\r
-Connection: close\r
+Connection: keep-alive\r
 Content-Length: 18\r
 Host: 127.0.0.1\r
 \r
@@ -243,10 +243,10 @@ GET /t1
 
 --- response_body eval
 qq{GET /t3 HTTP/1.1\r
-User-Agent: resty-requests/0.1\r
+User-Agent: resty-requests\r
 Accept: */*\r
 Content-Type: application/octet-stream\r
-Connection: close\r
+Connection: keep-alive\r
 Host: 127.0.0.1\r
 Transfer-Encoding: chunked\r
 \r
@@ -441,9 +441,9 @@ GET /t1
 
 --- response_body eval
 qq{GET /t1?test=event_hook HTTP/1.1\r
-User-Agent: resty-requests/0.1\r
+User-Agent: resty-requests\r
 Accept: */*\r
-Connection: close\r
+Connection: keep-alive\r
 Host: 127.0.0.1\r
 \r
 };

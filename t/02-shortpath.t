@@ -76,10 +76,10 @@ GET /t
 
 --- response_body eval
 qq{GET /t1 HTTP/1.1\r
-User-Agent: resty-requests/0.1\r
+User-Agent: resty-requests\r
 Accept: */*\r
 Cookie: name3=value3; name1=value1; name2=value2\r
-Connection: close\r
+Connection: keep-alive\r
 Host: 127.0.0.1\r
 \r
 };
@@ -124,10 +124,10 @@ GET /t
 
 --- response_body eval
 qq{GET /t1 HTTP/1.1\r
-User-Agent: resty-requests/0.1\r
+User-Agent: resty-requests\r
 Accept: */*\r
 Authorization: Basic YWxleDoxMjM0NTY=\r
-Connection: close\r
+Connection: keep-alive\r
 Host: 127.0.0.1\r
 \r
 };
