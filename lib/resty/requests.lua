@@ -63,4 +63,9 @@ _M.patch = patch
 _M.state = state
 _M.session = session.new
 
+local STATE = util.STATE
+for k, v in pairs(STATE) do
+    _M[k] = v
+end
+
 return _M

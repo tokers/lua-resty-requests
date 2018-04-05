@@ -26,6 +26,7 @@ Table of Contents
 * [TODO](#todo)
 * [Author](#author)
 * [Copyright and License](#copyright-and-license)
+* [See Also](#see-also)
 
 Status
 ======
@@ -122,9 +123,8 @@ You can use the method [requests.state](#state) to get the textual meaning of th
 * `http10` specify whether the `HTTP/1.0` should be used, the default verion is `HTTP/1.1`.
 
 * `ssl` holds a Lua table, with three fields:
-        * `verify`, controls whether to perform SSL verification
-        * `server_name`, is used to specify the server name for the new TLS extension Server Name Indication (SNI)
-        * `reused_session`, takes a former SSL session userdata returned by a previous sslhandshake call for exactly the same target
+  * `verify`, controls whether to perform SSL verification
+  * `server_name`, is used to specify the server name for the new TLS extension Server Name Indication (SNI)
 
 * `proxies` specify proxy servers, the form is like
 
@@ -279,20 +279,30 @@ In case of failure, `nil` and a Lua string described the error will be returned.
 Session
 =======
 
-Not implemented yet.
+A session persists some data across multiple requests, like cookies data, authorization data and etc.
+
+This mechanism now is still experimental.
+
+A simple example:
+
+```lua
+s = requests.session()
+local r, err = s.get("https://www.example.com")
+ngx.say(r:body())
+```
+
+A session object has same interfaces with `requests`, i.e. those http methods.
 
 TODO
 ====
 
-* requests.session
 * other interesting features...
-* introduce lua-tablepool to reduce the allocation and free for small tables
 
 
 Author
 ======
 
-Alex Zhang(张超) zchao1995@gmail.com, UPYUN Inc.
+Alex Zhang (张超) zchao1995@gmail.com, UPYUN Inc.
 
 Copyright and License
 =====================
@@ -308,3 +318,9 @@ Redistribution and use in source and binary forms, with or without modification,
 Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+See Also
+=========
+
+* upyun-resty: https://github.com/upyun/upyun-resty
+* httpipe: https://github.com/timebug/lua-resty-httpipe
