@@ -295,3 +295,141 @@ stop redirects
 
 --- no_error_log
 [error]
+
+
+=== TEST 7: 303 redirects follow(multi times)
+
+--- http_config eval: $::http_config
+
+--- config
+location /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "http://127.0.0.1:10088/t1?count=7&code=303"
+        local opts = {
+            allow_redirects = true,
+            redirect_max_times = 10,
+        }
+
+        local r, err = requests.get(url, opts)
+        if not r or r.status_code ~= 200 then
+            ngx.log(ngx.ERR, err)
+        end
+
+        while true do
+            local data, err = r:iter_content(3)
+            if err then
+                ngx.log(ngx.ERR, err)
+                return
+            end
+
+            if data == "" then
+                break
+            end
+
+            ngx.print(data)
+        end
+    }
+}
+
+--- request
+GET /t1
+
+--- status_code: 200
+--- response_body
+stop redirects
+
+--- no_error_log
+[error]
+
+
+=== TEST 8: 307 redirects follow(multi times)
+
+--- http_config eval: $::http_config
+
+--- config
+location /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "http://127.0.0.1:10088/t1?count=7&code=303"
+        local opts = {
+            allow_redirects = true,
+            redirect_max_times = 10,
+        }
+
+        local r, err = requests.get(url, opts)
+        if not r or r.status_code ~= 200 then
+            ngx.log(ngx.ERR, err)
+        end
+
+        while true do
+            local data, err = r:iter_content(3)
+            if err then
+                ngx.log(ngx.ERR, err)
+                return
+            end
+
+            if data == "" then
+                break
+            end
+
+            ngx.print(data)
+        end
+    }
+}
+
+--- request
+GET /t1
+
+--- status_code: 200
+--- response_body
+stop redirects
+
+--- no_error_log
+[error]
+
+
+=== TEST 8: 307 redirects follow(multi times)
+
+--- http_config eval: $::http_config
+
+--- config
+location /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "http://127.0.0.1:10088/t1?count=7&code=303"
+        local opts = {
+            allow_redirects = true,
+            redirect_max_times = 10,
+        }
+
+        local r, err = requests.post(url, opts)
+        if not r or r.status_code ~= 200 then
+            ngx.log(ngx.ERR, err)
+        end
+
+        while true do
+            local data, err = r:iter_content(3)
+            if err then
+                ngx.log(ngx.ERR, err)
+                return
+            end
+
+            if data == "" then
+                break
+            end
+
+            ngx.print(data)
+        end
+    }
+}
+
+--- request
+GET /t1
+
+--- status_code: 200
+--- response_body
+stop redirects
+
+--- no_error_log
+[error]
