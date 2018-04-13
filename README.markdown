@@ -75,9 +75,9 @@ Methods
 
 **syntax**: *local r, err = requests.request(method, url, opts?)*
 
-This is the pivotal method in `lua-resty-requests`, it will return a [response object](#response-object) `r`. In the case of fail, `nil` and a Lua string which describles the corresponding error will be given.
+This is the pivotal method in `lua-resty-requests`, it will return a [response object](#response-object) `r`. In the case of failure, `nil`, and a Lua string which describles the corresponding error will be given.
 
-The first param `method`, is the HTTP method that you want to use(same as
+The first parameter `method`, is the HTTP method that you want to use(same as
 HTTP's semantic), which takes a Lua string and the value can be:
 
 * `GET`
@@ -88,7 +88,7 @@ HTTP's semantic), which takes a Lua string and the value can be:
 * `OPTIONS`
 * `PATCH`
 
-The second param `url`, just takes the literal meaning(i.e. Uniform Resource Location),
+The second parameter `url`, just takes the literal meaning(i.e. Uniform Resource Location),
 for instance, `http://foo.com/blah?a=b`, you can omit the scheme prefix and as the default scheme,
 `http` will be selected.
 
@@ -96,31 +96,30 @@ The third param, an optional Lua table, which contains a number of  options:
 
 * `headers` holds the custom request headers.
 
-* `allow_redirects` specifies whether redirecting to the target url(specified by `Location` header) or not when the status code is `301` or `302`(`303`, `307` and `308` haven't been supported yet).
+* `allow_redirects` specifies whether redirecting to the target url(specified by `Location` header) or not when the status code is `301`, `302`, `303`, `307` or `308`.
 
-* `redirect_max_times` specifies the redirect limits, default is 10.
+* `redirect_max_times` specifies the redirect limits, default is `10`.
 
 * `body`, the request body, can be:
         * a Lua string, or
-        * a Lua function, takes no param and return a piece of data(string) or an empty Lua string to represent EOF
+        * a Lua function, without parameter and returns a piece of data (string) or an empty Lua string to represent EOF
 
-* `error_filter`,
- holds a Lua function which takes two params, `state` and `err`.
- the param `err` describes the error and `state` is always one of these values(represents the current stage):
-    * requests.CONNECT
-    * requests.HANDSHAKE
-    * requests.SEND_HEADER
-    * requests.SEND_BODY
-    * requests.RECV_HEADER
-    * requests.RECV_BODY
-    * requests.CLOSE
+* `error_filter`, holds a Lua function which takes two parameters, `state` and `err`.
+ the parameter `err` describes the error and `state` is always one of these values(represents the current stage):
+    * `requests.CONNECT`
+    * `requests.HANDSHAKE`
+    * `requests.SEND_HEADER`
+    * `requests.SEND_BODY`
+    * `requests.RECV_HEADER`
+    * `requests.RECV_BODY`
+    * `requests.CLOSE`
 
 You can use the method [requests.state](#state) to get the textual meaning of these values.
 
 
-* `timeouts`, which is an array-like table, `timeouts[1]`, `timeouts[2]` and `timeouts[3]` represents `connect timeout`, `send timeout` and `read timeout` respectively.
+* `timeouts`, an array-like table, `timeouts[1]`, `timeouts[2]` and `timeouts[3]` represents `connect timeout`, `send timeout` and `read timeout` respectively.
 
-* `http10` specify whether the `HTTP/1.0` should be used, the default verion is `HTTP/1.1`.
+* `http10` specify whether the `HTTP/1.0` should be used, default verion is `HTTP/1.1`.
 
 * `ssl` holds a Lua table, with three fields:
   * `verify`, controls whether to perform SSL verification
@@ -150,7 +149,7 @@ local hooks = {
 }
 ```
 
-There also some "short path" options:
+Considering the convenience, there are also some "short path" options:
 
 * `auth`, to do the Basic HTTP Authorization, takes a Lua table contains `user` and `pass`, e.g. when `auth` is:
 
@@ -163,7 +162,7 @@ There also some "short path" options:
 
 Request header `Authorzation` will be added, and the value is `Basic YWxleDoxMjM0NTY=`.
 
-* `json`, takes a Lua table, it will be serialized by `cjson`, the serialized data will be sent as the request body, and it takes the priority when both `json` and `body` is specified.
+* `json`, takes a Lua table, it will be serialized by `cjson`, the serialized data will be sent as the request body, and it takes the priority when both `json` and `body` are specified.
 
 * `cookie`, takes a Lua table, the key-value pairs will be organized according to the `Cookie` header's rule, e.g. `cookie` is:
 
@@ -181,13 +180,13 @@ The `Cookie` header will be `PHPSESSID=298zf09hf012fh2; csrftoken=u32t4o3tb3gg43
 
 The method is used for getting the textual meaning of these values:
 
- * requests.CONNECT
- * requests.HANDSHAKE
- * requests.SEND_HEADER
- * requests.SEND_BODY
- * requests.RECV_HEADER
- * requests.RECV_BODY
- * requests.CLOSE
+ * `requests.CONNECT`
+ * `requests.HANDSHAKE`
+ * `requests.SEND_HEADER`
+ * `requests.SEND_BODY`
+ * `requests.RECV_HEADER`
+ * `requests.RECV_BODY`
+ * `requests.CLOSE`
 
 a Lua string `"unknown"` will be returned if `state` isn't one of the above values.
 
