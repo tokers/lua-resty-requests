@@ -60,7 +60,7 @@ local STATE_NAME = {
 local HTTP10 = "HTTP/1.0"
 local HTTP11 = "HTTP/1.1"
 
-local DEFAULT_TIMEOUTS = { 10, 30, 60 }
+local DEFAULT_TIMEOUTS = { 10 * 1000, 30 * 1000, 60 * 1000 }
 local DEFAULT_REDIRECTS_MAX = 10
 
 local function is_str(obj) return type(obj) == "string" end
