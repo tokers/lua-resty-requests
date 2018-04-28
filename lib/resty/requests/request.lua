@@ -41,10 +41,10 @@ local function parse_url(url)
         parts.args = nil
 
     else
-        local colon = find(m[4], "?")
-        if colon then
-            parts.path = sub(m[4], 1, colon - 1)
-            parts.args = sub(m[4], colon + 1)
+        local query = find(m[4], "?", nil, true)
+        if query then
+            parts.path = sub(m[4], 1, query - 1)
+            parts.args = sub(m[4], query + 1)
         else
             parts.path = m[4]
             parts.args = nil
