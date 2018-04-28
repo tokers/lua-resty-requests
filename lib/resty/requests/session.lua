@@ -170,6 +170,13 @@ local function merge_settings(self, config)
     if config.hooks then
         self.hooks = config.hooks
     end
+
+    local timeouts = config.timeouts
+    if timeouts then
+        self.conn_timeout = timeouts[1]
+        self.send_timeout = timeouts[2]
+        self.read_timeout = timeouts[3]
+    end
 end
 
 
