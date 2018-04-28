@@ -13,9 +13,10 @@ local socket = ngx.socket.tcp
 local ngx_match = ngx.re.match
 local dict = util.dict
 local new_tab = util.new_tab
+local is_tab = util.is_tab
 local is_func = util.is_func
 
-local _M = { _VERSION = "0.1" }
+local _M = { _VERSION = "0.2" }
 local mt = { __index = _M }
 
 local STATE = util.STATE
@@ -86,6 +87,7 @@ local function handshake(self, request)
     end
 
     self.state = STATE.HANDSHAKE
+
     local verify = self.verify
     local reused_session = self.reused_session
     local server_name = self.server_name
@@ -215,11 +217,11 @@ local function read_header(self, request)
             if not ovalue then
                 headers[name] = value
 
-            elseif util.is_tab(ovalue) then
+            elseif is_tab(ovalue) then
                 insert(headers[name], value)
 
             else
-                headers[name] = new_tab(4, 0)
+                headers[name] = new_tab(2, 0)
                 headers[name][1] = ovalue
                 headers[name][2] = value
             end
@@ -270,7 +272,7 @@ end
 
 local function close(self, keepalive)
     local sock = self.sock
-    if not sock then
+    if not sock or self.state == STATE.CLOSE then
         return true
     end
 
