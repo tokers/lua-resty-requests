@@ -76,7 +76,7 @@ local function iter_chunked(r, size)
             end
 
             -- just ignore the chunk-extensions
-            local ext = size:find(";")
+            local ext = size:find(";", nil, true)
             if ext then
                 size = size:sub(1, ext - 1)
             end
@@ -188,7 +188,7 @@ local function new(opts)
     }
 
     local chunk = r.headers["Transfer-Encoding"]
-    if chunk and find(chunk, "chunked") then
+    if chunk and find(chunk, "chunked", nil, true) then
         r._chunk = {
             size = -1,
             rest = 0,
