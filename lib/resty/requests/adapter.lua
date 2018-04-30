@@ -19,7 +19,6 @@ local is_func = util.is_func
 local _M = { _VERSION = "0.2" }
 local mt = { __index = _M }
 
-local STATE = util.STATE
 local DEFAULT_POOL_SIZE = 30
 local DEFAULT_IDLE_TIMEOUT = 60 * 1000
 local DEFAULT_CONN_TIMEOUT = 2 * 1000
