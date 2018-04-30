@@ -7,7 +7,6 @@ local setmetatable = setmetatable
 local pairs = pairs
 local new_tab = util.new_tab
 local is_func = util.is_func
-local is_str = util.is_str
 local insert = table.insert
 local concat = table.concat
 local find = string.find

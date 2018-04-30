@@ -4,7 +4,6 @@ local type = type
 local pcall = pcall
 local pairs = pairs
 local rawget = rawget
-local tostring = tostring
 local setmetatable = setmetatable
 local lower = string.lower
 local upper = string.upper
