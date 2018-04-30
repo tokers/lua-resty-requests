@@ -58,7 +58,7 @@ local function parse_url(url)
 end
 
 
-local function prepare(url_parts, headers, session, config)
+local function prepare(url_parts, session, config)
     local headers = session.headers
     headers["Content-Length"] = nil
     headers["Transfer-Encoding"] = nil
@@ -111,13 +111,13 @@ local function prepare(url_parts, headers, session, config)
 end
 
 
-local function new(method, url, headers, session, config)
+local function new(method, url, session, config)
     local url_parts, err = parse_url(url)
     if not url_parts then
         return nil, err or "malformed url"
     end
 
-    local body = prepare(url_parts, headers, session, config)
+    local body = prepare(url_parts, session, config)
 
     local r = {
         method = method,
