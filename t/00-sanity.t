@@ -57,6 +57,16 @@ our $http_config = << 'EOC';
                 ngx.exit(200)
             }
         }
+
+        location = /t6 {
+            lua_need_request_body on;
+            content_by_lua_block {
+                ngx.status = 200
+                local arg = ngx.req.get_post_args()
+                ngx.say(arg.name, " ", arg.pass, " ", arg.token)
+                ngx.say(ngx.var.http_content_type)
+            }
+        }
     }
 EOC
 
@@ -454,3 +464,47 @@ Host: 127.0.0.1\r
 --- grep_error_log: event hook
 --- grep_error_log_out
 event hook
+
+
+=== TEST 9: POST args
+
+--- http_config eval: $::http_config
+
+--- config
+location /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "http://127.0.0.1:10088/t6"
+
+        local body = {
+            name = "alex",
+            pass = "123456",
+            token = "@3~j09PcXa398-",
+        }
+
+        local opts = {
+            body = body
+        }
+
+        local r, err = requests.get(url, opts)
+        if not r then
+            ngx.log(ngx.ERR, err)
+            return
+        end
+
+        local body = r:body()
+        ngx.print(body)
+
+        r:close()
+    }
+}
+
+--- request
+GET /t1
+
+--- response_body
+alex 123456 @3~j09PcXa398-
+application/x-www-form-urlencoded
+
+--- no_error_log
+[error]

@@ -5,14 +5,18 @@ local util = require "resty.requests.util"
 
 local setmetatable = setmetatable
 local pairs = pairs
+local tostring = tostring
 local new_tab = util.new_tab
 local is_func = util.is_func
+local is_str = util.is_str
+local is_tab = util.is_tab
 local insert = table.insert
 local concat = table.concat
 local find = string.find
 local sub = string.sub
+local format = string.format
 local ngx_match = ngx.re.match
-local _M = { _VERSION = "0.1" }
+local _M = { _VERSION = "0.2" }
 local mt = { __index = _M }
 
 local url_pattern = [[(?:(https?)://)?([^:/]+)(?::(\d+))?(.*)]]
@@ -78,11 +82,25 @@ local function prepare(url_parts, session, config)
             if not headers["Content-Type"] then
                 headers["Content-Type"] = "application/octet-stream"
             end
-        elseif body then
+
+        elseif is_str(body) then
             headers["Content-Length"] = #body
             if not headers["Content-Type"] then
                 headers["Content-Type"] = "text/plain"
             end
+
+        elseif is_tab(body) then
+            if not headers["Content-Type"] then
+                headers["Content-Type"] = "application/x-www-form-urlencoded"
+            end
+
+            local param = new_tab(4, 0)
+            for k, v in pairs(body) do
+                param[#param + 1] = format("%s=%s", tostring(k), tostring(v))
+            end
+
+            content = concat(param, "&")
+            headers["Content-Length"] = #content
         end
     end
 
