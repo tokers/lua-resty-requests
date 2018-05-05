@@ -67,6 +67,22 @@ our $http_config = << 'EOC';
                 ngx.say(ngx.var.http_content_type)
             }
         }
+
+        location = /t7 {
+            return 200 "Hello World";
+        }
+
+        location = /t8 {
+            content_by_lua_block {
+                for i = 1, 100 do
+                    local str = "aaa"
+                    for j = 3, 10 do
+                        ngx.print(str)
+                        str = str .. "a"
+                    end
+                end
+            }
+        }
     }
 EOC
 
@@ -505,6 +521,43 @@ GET /t1
 --- response_body
 alex 123456 @3~j09PcXa398-
 application/x-www-form-urlencoded
+
+--- no_error_log
+[error]
+
+
+=== TEST 10: duplicate response body reading
+
+--- http_config eval: $::http_config
+
+--- config
+location /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "http://127.0.0.1:10088/t7"
+
+        local r, err = requests.get(url)
+        if not r then
+            ngx.log(ngx.ERR, err)
+            return
+        end
+
+        local body = r:body()
+        ngx.say(body)
+
+        local body, err = r:body()
+        ngx.say(err)
+
+        r:close()
+    }
+}
+
+--- request
+GET /t1
+
+--- response_body
+Hello World
+is consumed
 
 --- no_error_log
 [error]
