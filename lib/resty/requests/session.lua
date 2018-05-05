@@ -223,37 +223,37 @@ end
 
 
 local function get(self, url, opts)
-    return self:send_request("GET", url, opts)
+    return self:request("GET", url, opts)
 end
 
 
 local function head(self, url, opts)
-    return self:send_request("HEAD", url, opts)
+    return self:request("HEAD", url, opts)
 end
 
 
 local function post(self, url, opts)
-    return self:send_request("POST", url, opts)
+    return self:request("POST", url, opts)
 end
 
 
 local function put(self, url, opts)
-    return self:send_request("PUT", url, opts)
+    return self:request("PUT", url, opts)
 end
 
 
 local function delete(self, url, opts)
-    return self:send_request("DELETE", url, opts)
+    return self:request("DELETE", url, opts)
 end
 
 
 local function options(self, url, opts)
-    return self:send_request("OPTIONS", url, opts)
+    return self:request("OPTIONS", url, opts)
 end
 
 
 local function patch(self, url, opts)
-    return self:send_request("PATCH", url, opts)
+    return self:request("PATCH", url, opts)
 end
 
 

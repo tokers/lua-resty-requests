@@ -287,7 +287,7 @@ A simple example:
 
 ```lua
 s = requests.session()
-local r, err = s.get("https://www.example.com")
+local r, err = s:get("https://www.example.com")
 ngx.say(r:body())
 ```
 
