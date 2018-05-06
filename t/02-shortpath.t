@@ -1,5 +1,7 @@
-use lib 'lib';
-use Test::Nginx::Socket 'no_plan';
+use Test::Nginx::Socket::Lua;
+repeat_each(3);
+
+plan tests => repeat_each() * (blocks() * 3);
 
 our $http_config = << 'EOC';
     lua_package_path "lib/?.lua;;";
@@ -25,7 +27,6 @@ our $http_config = << 'EOC';
 EOC
 
 no_long_string();
-repeat_each(3);
 run_tests();
 
 __DATA__
