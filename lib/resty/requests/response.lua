@@ -107,7 +107,7 @@ local function iter_chunked(r, size)
             read_size = chunk.rest
         end
 
-        local data, err = adapter.sock:receive(read_size)
+        local data, err = adapter:read(read_size)
         if err then
             return data, err
         end
@@ -157,7 +157,7 @@ local function iter_plain(r, size)
         size = rest
     end
 
-    local data, err = adapter.sock:receive(size)
+    local data, err = adapter:read(size)
     if err then
         return data, err
     end
@@ -193,7 +193,7 @@ local function new(opts)
             size = -1,
             rest = 0,
             leave = false,
-            reader = r._adapter.sock:receiveuntil("\r\n"),
+            reader = r._adapter:reader("\r\n"),
         }
     else
         r._rest = tonumber(r.headers["Content-Length"])

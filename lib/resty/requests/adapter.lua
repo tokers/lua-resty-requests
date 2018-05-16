@@ -315,8 +315,21 @@ local function send(self, request)
 end
 
 
+local function read(self, size)
+    local sock = self.sock
+    return sock:receive(size)
+end
+
+
+local function reader(self, till)
+    return self.sock:receiveuntil(till)
+end
+
+
 _M.new = new
 _M.send = send
 _M.close = close
+_M.read = read
+_M.reader = reader
 
 return _M

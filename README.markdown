@@ -261,7 +261,7 @@ Methods like `requests.get` and others will return a response object `r`, which 
 
 * `url`, the url passed from caller
 * `method`, the request method, e.g. `POST`
-* `status line`, the raw status line(received from the remote)
+* `status_line`, the raw status line(received from the remote)
 * `status_code`, the HTTP status code
 * `http_version`, the HTTP version of response, e.g. `HTTP/1.1`
 * `headers`, a Lua table represents the HTTP response headers(case-insensitive)
