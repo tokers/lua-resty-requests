@@ -202,7 +202,7 @@ local function new(opts)
         end
     end
 
-    local connection = r.headers["Connnection"]
+    local connection = r.headers["Connection"]
     if connection == "keep-alive" then
         r._keepalive = true
     end
