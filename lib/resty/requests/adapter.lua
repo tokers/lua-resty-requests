@@ -58,7 +58,9 @@ end
 local function connect(self, request)
     self.state = STATE.CONNECT
 
-    local timeout = self.conn_timeout
+    local conn_timeout = self.conn_timeout
+    local read_timeout = self.read_timeout
+    local send_timeout = self.send_timeout
     local proxies = request.proxies
     local scheme = request.scheme
 
@@ -74,7 +76,7 @@ local function connect(self, request)
 
     local sock = socket()
     self.sock = sock
-    sock:settimeout(timeout)
+    sock:settimeouts(conn_timeout, send_timeout, read_timeout)
 
     return sock:connect(host, port)
 end
@@ -301,10 +303,9 @@ local function close(self, keepalive)
         local idle_timeout = self.conn_idle_timeout
         local pool_size = self.pool_size
         return sock:setkeepalive(idle_timeout, pool_size)
-
-    else
-        return sock:close()
     end
+
+    return sock:close()
 end
 
 
