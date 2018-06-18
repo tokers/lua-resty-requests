@@ -85,6 +85,15 @@ our $http_config = << 'EOC';
                 end
             }
         }
+
+        location = /t9 {
+            content_by_lua_block {
+                ngx.sleep(1)
+                ngx.status = 200
+                ngx.say("hello world")
+                ngx.say("after 1s")
+            }
+        }
     }
 EOC
 
@@ -559,6 +568,83 @@ GET /t1
 --- response_body
 Hello World
 is consumed
+
+--- no_error_log
+[error]
+
+
+=== TEST 11: request elapsed time
+
+--- http_config eval: $::http_config
+
+--- config
+location /t1 {
+    lua_socket_send_timeout 10s;
+    lua_socket_read_timeout 10s;
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "http://127.0.0.1:10088/t9"
+        local opts = {
+            timeouts = {
+                10 * 1000,
+                30 * 1000,
+                60 * 1000,
+            }
+        }
+
+        local r, err = requests.get(url, opts)
+        if not r then
+            ngx.log(ngx.ERR, err)
+            return
+        end
+
+        local body = r:body()
+        ngx.print(body)
+
+        if r.elapsed.connect > 1 then
+            ngx.log(ngx.ERR, "connect time considerably large")
+        end
+
+        if r.elapsed.handshake ~= 0 then
+            ngx.log(ngx.ERR, "what's up, we don't do the SSL/TLS handshake")
+        end
+
+        if r.elapsed.send_header > 1 then
+            ngx.log(ngx.ERR, "send header time considerably large")
+        end
+
+        if r.elapsed.send_body ~= 0 then
+            ngx.log(ngx.ERR, "what's up, we don't send the HTTP request body")
+        end
+
+        if r.elapsed.read_header < 1 then
+            ngx.log(ngx.ERR, "we really postpone the header sending for 3s")
+        end
+
+        if r.elapsed.read_header > 2 then
+            ngx.log(ngx.ERR, "read header time considerably large")
+        end
+
+        local ttfb = r.elapsed.ttfb
+        if ttfb < 1 or ttfb > 2 then
+            ngx.log(ngx.ERR, "weird time to first byte")
+        end
+
+        local ok, err = r:close()
+        if not ok then
+            ngx.log(ngx.ERR, "failed to close r: ", err)
+        end
+    }
+}
+
+--- request
+GET /t1
+
+--- response_body
+hello world
+after 1s
+
+--- wait: 1
 
 --- no_error_log
 [error]
