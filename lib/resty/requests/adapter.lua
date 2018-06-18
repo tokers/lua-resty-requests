@@ -17,7 +17,7 @@ local new_tab = util.new_tab
 local is_tab = util.is_tab
 local is_func = util.is_func
 
-local _M = { _VERSION = "0.2" }
+local _M = { _VERSION = "0.3" }
 local mt = { __index = _M }
 
 local DEFAULT_POOL_SIZE = 30
@@ -278,6 +278,7 @@ local function new(opts)
             send_header= nil,
             send_body = nil,
             read_header = nil,
+            read_body = nil,
             ttfb = nil,
         },
 

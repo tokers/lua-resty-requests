@@ -11,7 +11,7 @@ local concat = table.concat
 local tonumber = tonumber
 local setmetatable = setmetatable
 
-local _M = { _VERSION = "0.1" }
+local _M = { _VERSION = "0.2" }
 local mt = { __index = _M }
 
 local DEFAULT_ITER_SIZE = 8192
@@ -167,6 +167,7 @@ local function new(opts)
         headers = opts.headers,
         request = opts.request,
         elapsed = opts.elapsed,
+        content = nil,
 
         -- internal members
         _adapter = opts.adapter,

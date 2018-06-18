@@ -174,6 +174,8 @@ Request header `Authorzation` will be added, and the value is `Basic YWxleDoxMjM
 }
 ```
 
+* `stream`, takes a boolean value, specifies whether reading the body in the stream mode, and it will be true by default. 
+
 The `Cookie` header will be `PHPSESSID=298zf09hf012fh2; csrftoken=u32t4o3tb3gg43 `.
 
 ### state

@@ -8,8 +8,9 @@ local setmetatable = setmetatable
 local format = string.format
 local pairs = pairs
 local new_tab = util.new_tab
+local ngx_now = ngx.now
 
-local _M = { _VERSION = "0.1" }
+local _M = { _VERSION = "0.2" }
 local mt = { __index = _M }
 local DEFAULT_TIMEOUTS = util.DEFAULT_TIMEOUTS
 local BUILTIN_HEADERS = util.BUILTIN_HEADERS
@@ -116,7 +117,7 @@ local function resolve_redirects(self, old_req, old_resp)
     end
 
     local new_method = rebuild_method(status_code, old_resp.method)
-    -- we don't read the body by ourselves since caller may use it
+    -- we don't read the body (non-stream) by ourselves since caller may use it
     return send_request(self, new_method, url, self.opts)
 end
 
@@ -177,6 +178,13 @@ local function merge_settings(self, config)
         self.send_timeout = timeouts[2]
         self.read_timeout = timeouts[3]
     end
+
+    local stream = config.stream
+    if stream ~= nil then
+        self.stream = stream
+    else
+        self.stream = true
+    end
 end
 
 
@@ -209,6 +217,12 @@ send_request = function(self, method, url, opts)
 
     if self.hooks then
         self.hooks.response(r)
+    end
+
+    if not self.stream then
+        local now = ngx_now()
+        r.content = r:body()
+        r.elapsed.read_body = ngx_now() - now
     end
 
     local new_resp, err = resolve_redirects(self, req, r)

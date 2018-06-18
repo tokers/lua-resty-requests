@@ -625,6 +625,11 @@ location /t1 {
             ngx.log(ngx.ERR, "read header time considerably large")
         end
 
+        if r.elapsed.read_body ~= nil then
+            ngx.log(ngx.ERR, "r.elapsed.read_body makes sense only ",
+                    "under non-stream mode")
+        end
+
         local ttfb = r.elapsed.ttfb
         if ttfb < 1 or ttfb > 2 then
             ngx.log(ngx.ERR, "weird time to first byte")
@@ -645,6 +650,52 @@ hello world
 after 1s
 
 --- wait: 1
+
+--- no_error_log
+[error]
+
+
+=== TEST 12: non-stream mode
+
+--- http_config eval: $::http_config
+
+--- config
+location /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "http://127.0.0.1:10088/t7"
+        local opts = {
+            stream = false,
+        }
+
+        local r, err = requests.get(url, opts)
+        if not r then
+            ngx.log(ngx.ERR, err)
+            return
+        end
+
+        ngx.say(r.content)
+        local data, err = r:body()
+        if err == nil then
+            ngx.log(ngx.ERR, "cannot read data continuously")
+        end
+
+        if r.elapsed.read_body == nil then
+            ngx.log(ngx.ERR, "unknown read body time")
+        end
+
+        local ok, err = r:close()
+        if not ok then
+            ngx.log(ngx.ERR, err)
+        end
+    }
+}
+
+--- request
+GET /t1
+
+--- response_body
+Hello World
 
 --- no_error_log
 [error]

@@ -94,7 +94,7 @@ end
 
 local function config(opts)
     opts = opts or {}
-    local config = new_tab(0, 12)
+    local config = new_tab(0, 13)
 
     -- 1) timeouts
     local timeouts = opts.timeouts
@@ -173,6 +173,14 @@ local function config(opts)
     local hooks = opts.hooks
     if hooks then
         config.hooks = hooks
+    end
+
+    -- 13) stream
+    local stream = opts.stream
+    if stream ~= nil then
+        config.stream = stream and true or false
+    else
+        config.stream = true
     end
 
     return config
