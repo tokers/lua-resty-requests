@@ -177,6 +177,7 @@ local function new(opts)
         http_version = opts.http_version,
         headers = opts.headers,
         request = opts.request,
+        elapsed = opts.elapsed,
 
         -- internal members
         _adapter = opts.adapter,

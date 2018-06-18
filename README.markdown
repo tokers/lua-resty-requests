@@ -276,6 +276,14 @@ In case of failure, `nil` and a Lua string described the error will be returned.
 
 In case of failure, `nil` and a Lua string described the error will be returned.
 
+* `elapsed`, a hash-like Lua table which represents the cost time for each stage.
+  * `elapsed.connect_time`, cost time for the TCP 3-Way Handshake;
+  * `elapsed.handshake`, cost time for the SSL/TLS handshake (if any);
+  * `elapsed.send_header`, cost time for sending the HTTP request headers;
+  * `elapsed.send_body`, cost time for sending the HTTP request body (if any);
+  * `elapsed.read_header`, cost time for receiving the HTTP response headers;
+  * `elapsed.ttfb`, the time to first byte.
+
 Session
 =======
 

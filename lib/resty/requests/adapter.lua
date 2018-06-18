@@ -11,6 +11,7 @@ local insert = table.insert
 local concat = table.concat
 local socket = ngx.socket.tcp
 local ngx_match = ngx.re.match
+local ngx_now = ngx.now
 local dict = util.dict
 local new_tab = util.new_tab
 local is_tab = util.is_tab
@@ -193,6 +194,7 @@ local function read_header(self, request)
     end
 
     local headers = dict(nil, 0, 9)
+    local first = true
 
     while true do
         local line, err = reader()
@@ -202,6 +204,11 @@ local function read_header(self, request)
 
         if line == "" then
             break
+        end
+
+        if first == true then
+            self.elapsed.ttfb = ngx_now() - self.start
+            first = false
         end
 
         local name, value, err = parse_header_line(line)
@@ -235,6 +242,7 @@ local function read_header(self, request)
         http_version = part.http_version,
         headers = headers,
         adapter = self,
+        elapsed = self.elapsed,
     }
 
     return true
@@ -261,6 +269,17 @@ local function new(opts)
         conn_timeout = opts.conn_timeout or DEFAULT_CONN_TIMEOUT,
         read_timeout = opts.read_timeout or DEFAULT_READ_TIMEOUT,
         send_timeout = opts.send_timeout or DEFAULT_SEND_TIMEOUT,
+
+        elapsed = {
+            connect = nil,
+            handshake = nil,
+            send_header= nil,
+            send_body = nil,
+            read_header = nil,
+            ttfb = nil,
+        },
+
+        start = ngx_now(),
 
         error_filter = opts.error_filter,
     }
@@ -298,10 +317,23 @@ local function send(self, request)
         read_header,
     }
 
+    local distr = {
+        "connect",
+        "handshake",
+        "send_header",
+        "send_body",
+        "read_header"
+    }
+
     local error_filter = self.error_filter
 
     for i = 1, #stages do
+        local now = ngx_now()
         local ok, err = stages[i](self, request)
+
+        -- calculate each stage's cost time
+        self.elapsed[distr[i]] = ngx_now() - now
+
         if not ok then
             if error_filter then
                 error_filter(self.state, err)
