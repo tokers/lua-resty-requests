@@ -61,11 +61,7 @@ local function iter_chunked(r, size)
 
     adapter.state = STATE.RECV_BODY
 
-    local t
-    if size then
-        t = new_tab(0, 4)
-    end
-
+    local t = new_tab(0, 4)
     local reader = chunk.reader
 
     while true do
@@ -92,18 +88,19 @@ local function iter_chunked(r, size)
 
         -- end
         if chunk.size == 0 then
-            if not size then
-                r._read_eof = true
-                return ""
-            end
-
             chunk.leave = true
+
+            -- read the last "\r\n"
+            local dummy, err = reader()
+            if dummy ~= "" then
+                return nil, err or "invalid chunked data"
+            end
 
             break
         end
 
         local read_size = size
-        if not size or read_size > chunk.rest then
+        if read_size > chunk.rest then
             read_size = chunk.rest
         end
 
@@ -112,22 +109,14 @@ local function iter_chunked(r, size)
             return data, err
         end
 
-        if not size then
-            chunk.rest = 0
-        else
-            size = size - read_size
-            chunk.rest = chunk.rest - read_size
-        end
+        size = size - #data
+        chunk.rest = chunk.rest - #data
 
         if chunk.rest == 0 then
             local dummy, err = reader()
             if dummy ~= "" then
                 return nil, err or "invalid chunked data"
             end
-        end
-
-        if not size then
-            return data
         end
 
         insert(t, data)
@@ -191,8 +180,8 @@ local function new(opts)
     local chunk = r.headers["Transfer-Encoding"]
     if chunk and find(chunk, "chunked", nil, true) then
         r._chunk = {
-            size = -1,
-            rest = 0,
+            size = 0, -- current chunked header size
+            rest = 0, -- rest part size in current chunked header
             leave = false,
             reader = r._adapter:reader("\r\n"),
         }
