@@ -118,7 +118,7 @@ The third param, an optional Lua table, which contains a number of  options:
 You can use the method [requests.state](#state) to get the textual meaning of these values.
 
 
-* `timeouts`, an array-like table, `timeouts[1]`, `timeouts[2]` and `timeouts[3]` represents `connect timeout`, `send timeout` and `read timeout` respectively.
+* `timeouts`, an array-like table, `timeouts[1]`, `timeouts[2]` and `timeouts[3]` represents `connect timeout`, `send timeout` and `read timeout` respectively (in seconds).
 
 * `http10` specify whether the `HTTP/1.0` should be used, default verion is `HTTP/1.1`.
 
@@ -276,7 +276,7 @@ In case of failure, `nil` and a Lua string described the error will be returned.
 
 In case of failure, `nil` and a Lua string described the error will be returned.
 
-* `elapsed`, a hash-like Lua table which represents the cost time for each stage.
+* `elapsed`, a hash-like Lua table which represents the cost time (in seconds) for each stage.
   * `elapsed.connect_time`, cost time for the TCP 3-Way Handshake;
   * `elapsed.handshake`, cost time for the SSL/TLS handshake (if any);
   * `elapsed.send_header`, cost time for sending the HTTP request headers;
