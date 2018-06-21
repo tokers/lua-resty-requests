@@ -60,7 +60,6 @@ local HTTP10 = "HTTP/1.0"
 local HTTP11 = "HTTP/1.1"
 
 local DEFAULT_TIMEOUTS = { 10 * 1000, 30 * 1000, 60 * 1000 }
-local DEFAULT_REDIRECTS_MAX = 10
 
 local function is_str(obj) return type(obj) == "string" end
 local function is_num(obj) return type(obj) == "number" end
@@ -92,7 +91,7 @@ local function basic_auth(user, pass)
 end
 
 
-local function config(opts)
+local function set_config(opts)
     opts = opts or {}
     local config = new_tab(0, 13)
 
@@ -192,7 +191,7 @@ _M.is_str = is_str
 _M.is_num = is_num
 _M.is_tab = is_tab
 _M.is_func = is_func
-_M.config = config
+_M.set_config = set_config
 _M.dict = dict
 _M.basic_auth = basic_auth
 _M.DEFAULT_TIMEOUTS = DEFAULT_TIMEOUTS

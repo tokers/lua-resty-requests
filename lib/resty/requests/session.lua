@@ -189,7 +189,7 @@ end
 
 
 send_request = function(self, method, url, opts)
-    local config = util.config(opts)
+    local config = util.set_config(opts)
     merge_settings(self, config)
 
     local req, err = request.new(method, url, self, config)
