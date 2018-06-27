@@ -66,6 +66,18 @@ ngx.print(body)
 --
 --     ngx.print(chunk)
 -- end
+
+-- in addition, you can choose the non-stream
+-- local opts = {
+--     stream = false
+-- }
+--
+-- local r, err = requests.get(url, opts)
+-- if not r then
+--     ngx.log(ngx.ERR, err)
+-- end
+--
+-- ngx.print(r.content)
 ```
 
 Methods
