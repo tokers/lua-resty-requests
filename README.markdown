@@ -67,7 +67,7 @@ ngx.print(body)
 --     ngx.print(chunk)
 -- end
 
--- in addition, you can choose the non-stream
+-- you can also use the non-stream mode
 -- local opts = {
 --     stream = false
 -- }
