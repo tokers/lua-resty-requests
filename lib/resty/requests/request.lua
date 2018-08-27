@@ -137,6 +137,8 @@ local function new(method, url, session, config)
 
     local body = prepare(url_parts, session, config)
 
+    local expect = session.headers["Expect"] == "100-continue"
+
     local r = {
         method = method,
         scheme = url_parts.scheme,
@@ -148,6 +150,7 @@ local function new(method, url, session, config)
         http_version = session.version,
         proxies = session.proxies,
         body = body,
+        expect = expect,
     }
 
     return setmetatable(r, mt)

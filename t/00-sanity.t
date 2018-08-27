@@ -94,6 +94,23 @@ our $http_config = << 'EOC';
                 ngx.say("after 1s")
             }
         }
+
+        location = /t10 {
+            client_body_in_single_buffer on;
+            client_body_buffer_size 1m;
+            client_max_body_size 1m;
+            content_by_lua_block {
+                local ok = ngx.var.arg_ok
+                if ok == "true" then
+                    ngx.req.read_body()
+                    ngx.print(ngx.req.get_body_data())
+                    return ngx.exit(ngx.status)
+                else
+                    ngx.print("no no no")
+                    ngx.flush(true)
+                end
+            }
+        }
     }
 EOC
 
@@ -699,3 +716,45 @@ Hello World
 
 --- no_error_log
 [error]
+
+
+=== TEST 13: send request body with Expect header
+
+--- http_config eval: $::http_config
+
+--- config
+location = /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "http://127.0.0.1:10088/t10?ok=true"
+        local opts = {
+            stream = false,
+            headers = {
+                Expect = "100-continue",
+            },
+
+            body = "你好世界你好世界",
+        }
+
+        local r, err = requests.post(url, opts)
+        if not r then
+            ngx.log(ngx.ERR, err)
+            return
+        end
+
+        ngx.print(r.content)
+
+        local r, err = requests.post("http://127.0.0.1:10088/t10", opts)
+        assert(r == nil)
+        ngx.log(ngx.ERR, err)
+    }
+}
+
+--- request
+GET /t1
+
+--- response_body: 你好世界你好世界
+
+--- grep_error_log: invalid 100-continue response
+--- grep_error_log_out
+invalid 100-continue response

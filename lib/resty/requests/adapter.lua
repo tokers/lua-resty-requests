@@ -144,6 +144,19 @@ local function send_body(self, request)
 
     self.state = STATE.SEND_BODY
 
+    -- firstly we need to wait the 100-Continue response
+    if request.expect and request.http_version ~= util.HTTP10 then
+        local reader = self.sock:receiveuntil("\r\n\r\n")
+        local resp, err = reader()
+        if not resp then
+            return nil, err
+        end
+
+        if lower(resp) ~= "http/1.1 100 continue" then
+            return nil, "invalid 100-continue response"
+        end
+    end
+
     local sock = self.sock
 
     if not is_func(body) then

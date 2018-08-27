@@ -288,6 +288,8 @@ In case of failure, `nil` and a Lua string described the error will be returned.
 
 * `body`, also holds a Lua function that returns the whole response body.
 
+* `content`, the response body, only valid in the non-stream mode.
+
 In case of failure, `nil` and a Lua string described the error will be returned.
 
 * `elapsed`, a hash-like Lua table which represents the cost time (in seconds) for each stage.
