@@ -76,11 +76,11 @@ our $http_config = << 'EOC';
 
         location = /t8 {
             content_by_lua_block {
-                for i = 1, 100 do
-                    local str = "aaa"
-                    for j = 3, 10 do
+                for i = 1, 256 do
+                    local str = ""
+                    for j = 33, 100 do
+                        str = str .. string.char(j)
                         ngx.print(str)
-                        str = str .. "a"
                     end
                 end
             }
@@ -758,3 +758,62 @@ GET /t1
 --- grep_error_log: invalid 100-continue response
 --- grep_error_log_out
 invalid 100-continue response
+
+
+=== TEST 14: read chunked body
+
+--- http_config eval: $::http_config
+
+--- config
+location = /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "http://127.0.0.1:10088/t8"
+        local r, err = requests.post(url)
+        if not r then
+            ngx.log(ngx.ERR, err)
+            return
+        end
+
+        local t = {}
+        local size = 1
+
+        while true do
+            local data, err = r:iter_content(size)
+            if not data then
+                ngx.log(ngx.ERR, err)
+                return
+            end
+
+            size = (size + 1) % 20 + 1
+
+            if data == "" then
+                break
+            end
+
+            t[#t + 1] = data
+        end
+
+        local single = {}
+        local part = ""
+        for i = 33, 100 do
+            single[#single + 1] = string.char(i)
+            part = part .. table.concat(single)
+        end
+
+        local raw = table.concat(t)
+
+        if raw == string.rep(part, 256) then
+            ngx.print("OK")
+        else
+            ngx.print("FAILURE")
+        end
+    }
+}
+--- request
+GET /t1
+
+--- response_body: OK
+
+--- no_error_log
+[error]
