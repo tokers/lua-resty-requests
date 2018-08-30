@@ -1,5 +1,20 @@
 use Test::Nginx::Socket::Lua;
+use Cwd qw(cwd);
 
+my $pwd = cwd();
+
+sub read_file {
+    my $infile = shift;
+    open my $in, $infile
+        or die "cannot open $infile for reading: $!";
+    my $cert = do { local $/; <$in> };
+    close $in;
+    $cert;
+}
+
+$ENV{TEST_NGINX_PWD} ||= $pwd;
+our $TestCertificate = read_file("t/ssl/tokers.crt");
+our $TestCertificateKey = read_file("t/ssl/tokers.key");
 repeat_each(3);
 plan tests => repeat_each() * (blocks() * 3 + 1);
 
@@ -817,3 +832,127 @@ GET /t1
 
 --- no_error_log
 [error]
+
+
+=== TEST 15: ssl handshake
+
+--- http_config
+server {
+    listen 10089 ssl;
+    server_name tokers.com;
+    ssl_certificate  ../html/tokers.crt;
+    ssl_certificate_key ../html/tokers.key;
+
+    return 200 yes;
+}
+
+--- config
+location = /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "https://127.0.0.1:10089/t8"
+        local r, err = requests.get(url)
+        if not r then
+            ngx.log(ngx.ERR, err)
+            return
+        end
+
+        ngx.print(r:body())
+    }
+}
+
+--- user_files eval
+">>> tokers.key
+$::TestCertificateKey
+>>> tokers.crt
+$::TestCertificate"
+
+--- request
+GET /t1
+
+--- response_body: yes
+--- no_error_log
+[error]
+
+
+=== TEST 16: ssl handshake failed
+
+--- http_config eval: $::http_config
+
+--- config
+location = /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "https://127.0.0.1:10088/t8"
+
+        local filter = function(state, err)
+            ngx.print(requests.state(state), ":", err)
+        end
+
+        local r, err = requests.get(url, { error_filter = filter })
+
+        if r then
+            ngx.print("incorrect result")
+            return
+        end
+
+        ngx.log(ngx.ERR, err)
+    }
+}
+
+--- request
+GET /t1
+
+--- response_body: handshake:handshake failed
+--- grep_error_log: handshake failed
+--- grep_error_log_out
+handshake failed
+
+
+=== TEST 17: ssl handshake failed since the certificate verify
+
+--- http_config
+server {
+    listen 10089 ssl;
+    server_name tokers.com;
+    ssl_certificate  ../html/tokers.crt;
+    ssl_certificate_key ../html/tokers.key;
+
+    return 200 yes;
+}
+
+--- config
+location = /t1 {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local url = "https://127.0.0.1:10089/t8a?asd&c=d"
+
+        local ssl = {
+            verify = true,
+            server_name = "abc.com",
+        }
+
+        local r, err = requests.get(url, { ssl = ssl })
+        if r then
+            ngx.print("incorrect result")
+            return
+        end
+
+        ngx.log(ngx.ERR, err)
+        ngx.print("good")
+    }
+}
+
+--- user_files eval
+">>> tokers.key
+$::TestCertificateKey
+>>> tokers.crt
+$::TestCertificate"
+
+--- request
+GET /t1
+
+--- response_body: good
+--- grep_error_log: lua ssl certificate verify error
+--- grep_error_log_out
+lua ssl certificate verify error
