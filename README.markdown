@@ -133,6 +133,10 @@ You can use the method [requests.state](#state) to get the textual meaning of th
 * `timeouts`, an array-like table, `timeouts[1]`, `timeouts[2]` and `timeouts[3]` represents `connect timeout`, `send timeout` and `read timeout` respectively (in seconds).
 
 * `http10` specify whether the `HTTP/1.0` should be used, default verion is `HTTP/1.1`.
+* `http20` specify whether the `HTTP/2` should be used, default verion is `HTTP/1.1`.
+
+Note this is still unstable, caution should be exercised. Also, there are some
+limitations, see [lua-resty-http2](https://github.com/tokers/lua-resty-http2) for the details.
 
 * `ssl` holds a Lua table, with three fields:
   * `verify`, controls whether to perform SSL verification
@@ -299,6 +303,8 @@ In case of failure, `nil` and a Lua string described the error will be returned.
   * `elapsed.send_body`, cost time for sending the HTTP request body (if any);
   * `elapsed.read_header`, cost time for receiving the HTTP response headers;
   * `elapsed.ttfb`, the time to first byte.
+
+Note When HTTP/2 protocol is applied, the `elapsed.send_body` (if any) will be same as `elapsed.send_header`.
 
 Session
 =======
