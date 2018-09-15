@@ -19,7 +19,7 @@ before_script:
     - tar xzf openresty-$V_OPENRESTY.tar.gz
     - cd openresty-$V_OPENRESTY && ./configure && make && sudo make install && cd ..
     - git clone https://github.com/tokers/lua-resty-http2
-    - cp -r lua-resty-http2/lib/resty/http2 /usr/local/openresty/lualib/resty
-    - cp lua-resty-http2/lib/resty/http2.lua /usr/local/openresty/lualib/resty
+    - sudo cp -r lua-resty-http2/lib/resty/http2 /usr/local/openresty/lualib/resty
+    - sudo cp lua-resty-http2/lib/resty/http2.lua /usr/local/openresty/lualib/resty
 script:
     - make test
