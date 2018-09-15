@@ -17,7 +17,7 @@ before_script:
     - sudo apt-get install make build-essential lua5.1 -y
     - wget https://openresty.org/download/openresty-$V_OPENRESTY.tar.gz
     - tar xzf openresty-$V_OPENRESTY.tar.gz
-    - cd openresty-$V_OPENRESTY && ./configure && make && sudo make install && cd ..
+    - cd openresty-$V_OPENRESTY && ./configure --with-http_v2_module && make && sudo make install && cd ..
     - git clone https://github.com/tokers/lua-resty-http2
     - sudo cp -r lua-resty-http2/lib/resty/http2 /usr/local/openresty/lualib/resty
     - sudo cp lua-resty-http2/lib/resty/http2.lua /usr/local/openresty/lualib/resty

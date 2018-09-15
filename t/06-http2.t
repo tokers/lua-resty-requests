@@ -369,5 +369,3 @@ GET /t1
 --- response_body: hello world
 --- no_error_log
 [error]
-
---- ONLY
