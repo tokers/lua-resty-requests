@@ -58,6 +58,7 @@ local STATE_NAME = {
 
 local HTTP10 = "HTTP/1.0"
 local HTTP11 = "HTTP/1.1"
+local HTTP2 = "HTTP/2"
 
 local DEFAULT_TIMEOUTS = { 10 * 1000, 30 * 1000, 60 * 1000 }
 
@@ -106,6 +107,8 @@ local function set_config(opts)
     -- 2) http version
     if opts.http10 then
         config.version = HTTP10
+    elseif opts.http2 then
+        config.version = HTTP2
     else
         config.version = HTTP11
     end

@@ -2,9 +2,11 @@
 
 local util = require "resty.requests.util"
 local response = require "resty.requests.response"
+local check_http2, http2 = pcall(require, "resty.http2")
 
 local pairs = pairs
 local tonumber = tonumber
+local tostring = tostring
 local lower = string.lower
 local format = string.format
 local insert = table.insert
@@ -26,6 +28,17 @@ local DEFAULT_CONN_TIMEOUT = 2 * 1000
 local DEFAULT_SEND_TIMEOUT = 10 * 1000
 local DEFAULT_READ_TIMEOUT = 30 * 1000
 local STATE = util.STATE
+local HTTP2_MEMO
+local HTTP2_MEMO_LAST_ENTRY
+local LAST_HTTP2_KEY
+
+if check_http2 then
+    -- the single linked list for caching the HTTP/2 session key
+    HTTP2_MEMO = new_tab(0, 4)
+    -- the last entry in the single linked list
+    HTTP2_MEMO_LAST_ENTRY = new_tab(0, 4)
+    LAST_HTTP2_KEY = new_tab(0, 4)
+end
 
 
 local function parse_status_line(status_line)
@@ -78,6 +91,42 @@ local function connect(self, request)
     self.sock = sock
     sock:settimeouts(conn_timeout, send_timeout, read_timeout)
 
+    if check_http2 and request.http_version == "HTTP/2" then
+        local key = host .. ":" .. port
+        local pool_key
+        local reuse
+
+        if HTTP2_MEMO[key] then
+            local entry = HTTP2_MEMO[key]
+            HTTP2_MEMO[key] = entry.next
+            pool_key = entry.key
+            reuse = true
+
+        else
+            local last_key = LAST_HTTP2_KEY[key] or 0
+            pool_key = key .. ":" .. last_key
+            LAST_HTTP2_KEY[key] = last_key + 1
+        end
+
+        self.h2_session_key = pool_key
+        self.h2_key = key
+        self.pool_size = 1
+
+        local ok, err = sock:connect(host, port, { pool = pool_key })
+        if not ok then
+            return nil, err
+        end
+
+        if reuse and sock:getreusedtimes() == 0 then
+            -- the new connection
+            local last_key = LAST_HTTP2_KEY[key]
+            LAST_HTTP2_KEY[key] = last_key + 1
+            self.h2_session_key = key .. ":" .. last_key
+        end
+
+        return true
+    end
+
     return sock:connect(host, port)
 end
 
@@ -85,6 +134,11 @@ end
 local function handshake(self, request)
     local scheme = request.scheme
     if scheme ~= "https" then
+        -- carefully use HTTP/2 with plain connection
+        if request.http_version == "HTTP/2" then
+            self.h2 = true
+        end
+
         return true
     end
 
@@ -94,6 +148,16 @@ local function handshake(self, request)
     local reused_session = self.reused_session
     local server_name = self.server_name
     local sock = self.sock
+
+    if http2 and request.http_version == "HTTP/2" then
+        local ok, proto = sock:sslhandshake(reused_session, server_name, verify,
+                                            nil, "h2")
+        if ok and proto == "h2" then
+            self.h2 = true
+        end
+
+        return ok, proto
+    end
 
     return sock:sslhandshake(reused_session, server_name, verify)
 end
@@ -297,6 +361,12 @@ local function new(opts)
 
         start = ngx_now(),
 
+        h2 = false,
+        h2_key = nil,
+        h2_session_key = nil,
+        h2_session = nil,
+        h2_stream = nil,
+
         error_filter = opts.error_filter,
     }
 
@@ -314,12 +384,126 @@ local function close(self, keepalive)
     self.sock = nil
 
     if keepalive then
+        if self.h2 then
+            local key = self.h2_key
+            local session_key = self.h2_session_key
+            local entry = { key = session_key, next = nil }
+
+            if not HTTP2_MEMO[key] then
+                HTTP2_MEMO[key] = entry
+            else
+                HTTP2_MEMO_LAST_ENTRY[key].next = entry
+            end
+
+            HTTP2_MEMO_LAST_ENTRY[key] = entry
+
+            self.h2_session:keepalive(session_key)
+        end
+
         local idle_timeout = self.conn_idle_timeout
-        local pool_size = self.pool_size
-        return sock:setkeepalive(idle_timeout, pool_size)
+        return sock:setkeepalive(idle_timeout, self.pool_size)
+    end
+
+    if self.h2 then
+        local ok, err = self.h2_session:close()
+        if not ok then
+            return nil, err
+        end
     end
 
     return sock:close()
+end
+
+
+local function handle_http2(self, request)
+    local client, err = http2.new {
+        ctx = self.sock,
+        recv = self.sock.receive,
+        send = self.sock.send,
+        key = self.h2_session_key,
+    }
+
+    local error_filter = self.error_filter
+    self.state = STATE.SEND_HEADER
+
+    if not client then
+        return nil, err
+    end
+
+    local ok, err = client:acknowledge_settings()
+    if not ok then
+        return nil, err
+    end
+
+    self.h2_session = client
+
+    local headers = new_tab(8, 0)
+    local req_headers = request.headers
+
+    local uri = request.uri
+    local args = request.args
+
+    if args then
+        headers[#headers + 1] = { name = ":path", value = uri .. "?" .. args }
+    else
+        headers[#headers + 1] = { name = ":path", value = uri }
+    end
+
+    headers[#headers + 1] = { name = ":method", value = request.method }
+    headers[#headers + 1] = { name = ":authority", value = req_headers["Host"] }
+    headers[#headers + 1] = { name = ":scheme", value = request.scheme }
+
+    for k, v in pairs(req_headers) do
+        headers[#headers + 1] = { name = k, value = tostring(v) }
+    end
+
+    local tm1 = ngx_now()
+    local stream, err = client:send_request(headers, request.body)
+    if not stream then
+        if error_filter then
+            error_filter(self.state, err)
+        end
+
+        return nil, err
+    end
+
+    local tm2 = ngx_now()
+
+    self.elapsed.send_header = tm2 - tm1
+    self.elapsed.send_body = request.body and tm2 - tm1 or 0
+
+    self.h2_stream = stream
+
+    self.state = STATE.RECV_HEADER
+
+    headers, err = client:read_headers(stream)
+    if not headers then
+        if error_filter then
+            error_filter(self.state, err)
+        end
+
+        return nil, err
+    end
+
+    local tm3 = ngx_now()
+    self.elapsed.ttfb = tm3 - self.start
+    self.elapsed.read_header = tm3 - tm2
+
+    local status_code = tonumber(headers[":status"])
+    headers[":status"] = nil
+
+    self.response = response.new {
+        url = request.url,
+        method = request.method,
+        status_line = "HTTP/2 " .. status_code,
+        status_code = status_code,
+        http_version = "HTTP/2",
+        headers = headers,
+        adapter = self,
+        elapsed = self.elapsed,
+    }
+
+    return self.response
 end
 
 
@@ -356,6 +540,10 @@ local function send(self, request)
 
             return nil, err
         end
+
+        if self.h2 then
+            return handle_http2(self, request)
+        end
     end
 
     return self.response
@@ -364,7 +552,15 @@ end
 
 local function read(self, size)
     local sock = self.sock
-    return sock:receive(size)
+    if not self.h2 then
+        return sock:receive(size)
+    end
+
+    -- size will be ignored in the HTTP/2 case
+    local session = self.h2_session
+    local stream = self.h2_stream
+
+    return session:read_body(stream)
 end
 
 

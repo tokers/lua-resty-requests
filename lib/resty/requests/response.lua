@@ -16,6 +16,9 @@ local mt = { __index = _M }
 
 local DEFAULT_ITER_SIZE = 8192
 local STATE = util.STATE
+local HTTP10 = 10
+local HTTP11 = 11
+local HTTP20 = 20
 
 
 local function no_body(r)
@@ -157,6 +160,21 @@ local function iter_plain(r, size)
 end
 
 
+local function iter_http2(r, size)
+    local adapter = r._adapter
+    adapter.state = STATE.RECV_BODY
+
+    -- just a flag in the HTTP/2 case
+    local rest = r._rest
+    if rest == 0 then
+        r._read_eof = true
+        return ""
+    end
+
+    return adapter:read(size)
+end
+
+
 local function new(opts)
     local r = {
         url = opts.url,
@@ -176,25 +194,34 @@ local function new(opts)
         _rest = -1,
         _read_eof = false,
         _keepalive = false,
+        _http_ver = HTTP10,
     }
 
-    local chunk = r.headers["Transfer-Encoding"]
-    if chunk and find(chunk, "chunked", nil, true) then
-        r._chunk = {
-            size = 0, -- current chunked header size
-            rest = 0, -- rest part size in current chunked header
-            leave = false,
-            reader = r._adapter:reader("\r\n"),
-        }
-    else
-        r._rest = tonumber(r.headers["Content-Length"])
-        if r._rest == 0 or no_body(r) then
-            r._read_eof = true
+    if r.http_version == "HTTP/2" then
+        r._http_ver = HTTP20
+    elseif r.http_version == "HTTP/1.1" then
+        r._http_ver = HTTP11
+    end
+
+    if r._http_ver ~= HTTP20 then
+        local chunk = r.headers["Transfer-Encoding"]
+        if chunk and find(chunk, "chunked", nil, true) then
+            r._chunk = {
+                size = 0, -- current chunked header size
+                rest = 0, -- rest part size in current chunked header
+                leave = false,
+                reader = r._adapter:reader("\r\n"),
+            }
+        else
+            r._rest = tonumber(r.headers["Content-Length"])
+            if r._rest == 0 or no_body(r) then
+                r._read_eof = true
+            end
         end
     end
 
     local connection = r.headers["Connection"]
-    if connection == "keep-alive" then
+    if connection == "keep-alive" or r._http_ver == HTTP20 then
         r._keepalive = true
     end
 
@@ -216,10 +243,12 @@ local function iter_content(r, size)
 
     local data, err
 
-    if r._chunk then
+    if r.http_version == "HTTP/2" then
+        data, err = iter_http2(r, size)
+    elseif r._chunk then
         data, err = iter_chunked(r, size)
     else
-        data, err = iter_plain(r, size)
+        data, err = iter_plain(r)
     end
 
     local error_filter = adapter.error_filter
