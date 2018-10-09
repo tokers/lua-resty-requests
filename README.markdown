@@ -308,6 +308,7 @@ Methods like `requests.get` and others will return a response object `r`, which 
 * `http_version`, the HTTP version of response, e.g. `HTTP/1.1`
 * `headers`, a Lua table represents the HTTP response headers(case-insensitive)
 * `close`, holds a Lua function, used to close(keepalive) the underlying TCP connection
+* `drop`, is a Lua function, used for dropping the unread HTTP response body, will be invoked automatically when closing (if any unread data remains)
 * `iter_content`, which is also a Lua function, emits a part of response body(decoded from chunked format) each time called. 
 
 This function accepts an optional param `size` to specify the size of body that the caller wants, when absent, `iter_content` returns `8192` bytes when the response body is plain or returns a piece of chunked data if the resposne body is chunked.

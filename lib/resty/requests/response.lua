@@ -309,7 +309,30 @@ local function json(r)
 end
 
 
+local function drop(r)
+    while true do
+        local chunk, err = r:iter_content(4096)
+        if not chunk then
+            return nil, err
+        end
+
+        if chunk == "" then
+            return true
+        end
+    end
+end
+
+
 local function close(r)
+    if r._keepalive then
+        if not r._read_eof then
+            local ok, err = r:drop()
+            if not ok then
+                return nil, err
+            end
+        end
+    end
+
     local adapter = r._adapter
     return adapter:close(r._keepalive)
 end
@@ -319,6 +342,7 @@ _M.new = new
 _M.close = close
 _M.iter_content = iter_content
 _M.body = body
+_M.drop = drop
 _M.json = json
 
 return _M
