@@ -1,8 +1,8 @@
 package = "lua-resty-requests"
-version = "0.3-1"
+version = "0.4-1"
 source = {
    url = "git://github.com/tokers/lua-resty-requests",
-   tag = "v0.3",
+   tag = "v0.4",
 }
 description = {
    summary = "Yet Another HTTP library for OpenResty",
