@@ -126,6 +126,17 @@ our $http_config = << 'EOC';
                 end
             }
         }
+
+        location = /t11 {
+            content_by_lua_block {
+                local t = {}
+                for i = 1, 1024 do
+                    t[i] = "abbbbasdj"
+                end
+
+                ngx.print(t)
+            }
+        }
     }
 EOC
 
@@ -837,6 +848,7 @@ GET /t1
 === TEST 15: ssl handshake
 
 --- http_config
+lua_package_path "lib/?.lua;;";
 server {
     listen 10089 ssl;
     server_name tokers.com;
@@ -912,6 +924,7 @@ handshake failed
 === TEST 17: ssl handshake failed since the certificate verify
 
 --- http_config
+lua_package_path "lib/?.lua;;";
 server {
     listen 10089 ssl;
     server_name tokers.com;
@@ -956,3 +969,34 @@ GET /t1
 --- grep_error_log: lua ssl certificate verify error
 --- grep_error_log_out
 lua ssl certificate verify error
+
+
+=== TEST 18: r:drop
+
+--- http_config eval: $::http_config
+--- config
+    location = /t {
+        content_by_lua_block {
+            local requests = require "resty.requests"
+            local url = "http://127.0.0.1:10088/t11"
+            local r, err = requests.get(url)
+            if not r then
+                ngx.log(ngx.ERR, "incorrect result: ", err)
+                return
+            end
+
+            local ok, err = r:drop()
+            if not ok then
+                ngx.log(ngx.ERR, "incorrect result: ", err)
+            end
+
+            ngx.print("OK")
+        }
+    }
+
+--- request
+GET /t
+
+--- response_body: OK
+--- no_error_log
+[error]
