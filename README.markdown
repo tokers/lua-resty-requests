@@ -9,8 +9,9 @@ Table of Contents
 =================
 
 * [Name](#name)
-* [Synopsis](#synopsis)
 * [Status](#status)
+* [Synopsis](#synopsis)
+* [Installation](#installation)
 * [Methods](#methods)
     * [request](#request)
     * [state](#state)
@@ -78,6 +79,29 @@ ngx.print(body)
 -- end
 --
 -- ngx.print(r.content)
+```
+
+Installation
+============
+
+* [LuaRocks](https://luarocks.org):
+
+```bash
+$ luarocks install lua-resty-requests
+```
+
+* [OPM](https://github.com/openresty/opm):
+
+```bash
+$ opm get thibaultcha/lua-resty-mlcache
+```
+
+* Manually:
+
+Just tweeks the `lua_cpackage_path` or the `LUA_PATH` environment variable, to add the installation path for this Lua module:
+
+```
+/path/to/lua-resty-requests/lib/?.lua;
 ```
 
 Methods
