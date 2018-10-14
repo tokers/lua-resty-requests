@@ -35,7 +35,7 @@ if [ ! "$(ls -A $OPENRESTY_INSTALL_DIR)" ]; then
 
     git clone https://github.com/tokers/lua-resty-http2
     cp -r lua-resty-http2/lib/resty/http2 $OPENRESTY_INSTALL_DIR/lualib/resty
-    cp lua-resty-http2/lib/resty/http2.lua /usr/local/openresty/lualib/resty
+    cp lua-resty-http2/lib/resty/http2.lua $OPENRESTY_INSTALL_DIR/lualib/resty
     rm -rf lua-resty-http2
 fi
 
