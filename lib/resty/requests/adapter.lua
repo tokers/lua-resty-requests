@@ -142,12 +142,21 @@ local function handshake(self, request)
         return true
     end
 
-    self.state = STATE.HANDSHAKE
-
     local verify = self.verify
     local reused_session = self.reused_session
     local server_name = self.server_name
     local sock = self.sock
+
+    local times, err = sock:getreusedtimes()
+    if err then
+        return nil, err
+    end
+
+    if times ~= 0 then
+        return true
+    end
+
+    self.state = STATE.HANDSHAKE
 
     if http2 and request.http_version == "HTTP/2" then
         local ok, proto = sock:sslhandshake(reused_session, server_name, verify,
