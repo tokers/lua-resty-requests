@@ -64,8 +64,6 @@ end
 
 local function prepare(url_parts, session, config)
     local headers = session.headers
-    headers["Content-Length"] = nil
-    headers["Transfer-Encoding"] = nil
 
     local content
     local json = config.json
@@ -78,13 +76,19 @@ local function prepare(url_parts, session, config)
     else
         content = body
         if is_func(body) then
-            headers["Transfer-Encoding"] = "chunked"
+            -- users may know their request body size
+            if not headers["Content-Length"] then
+                headers["Transfer-Encoding"] = "chunked"
+            end
+
             if not headers["Content-Type"] then
                 headers["Content-Type"] = "application/octet-stream"
             end
 
         elseif is_str(body) then
             headers["Content-Length"] = #body
+            headers["Transfer-Encoding"] = nil
+
             if not headers["Content-Type"] then
                 headers["Content-Type"] = "text/plain"
             end
@@ -101,11 +105,16 @@ local function prepare(url_parts, session, config)
 
             content = concat(param, "&")
             headers["Content-Length"] = #content
+            headers["Transfer-Encoding"] = nil
         end
     end
 
     if not headers["Host"] then
         headers["Host"] = url_parts.host
+    end
+
+    if headers["Transfer-Encoding"] then
+        headers["Content-Length"] = nil
     end
 
     headers["Connection"] = "keep-alive"

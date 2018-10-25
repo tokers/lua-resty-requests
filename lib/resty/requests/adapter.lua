@@ -19,7 +19,7 @@ local new_tab = util.new_tab
 local is_tab = util.is_tab
 local is_func = util.is_func
 
-local _M = { _VERSION = "0.3" }
+local _M = { _VERSION = "0.4" }
 local mt = { __index = _M }
 
 local DEFAULT_POOL_SIZE = 30
@@ -236,18 +236,22 @@ local function send_body(self, request)
         return sock:send(body)
     end
 
+    local chunked = request.headers["Transfer-Encoding"] ~= nil
+
     repeat
         local chunk, err = body()
         if not chunk then
             return nil, err
         end
 
-        local data
+        local data = chunk
 
-        if chunk == "" then
-            data = "0\r\n\r\n"
-        else
-            data = format("%x\r\n%s\r\n", #chunk, chunk)
+        if chunked then
+            if chunk == "" then
+                data = "0\r\n\r\n"
+            else
+                data = format("%x\r\n%s\r\n", #chunk, chunk)
+            end
         end
 
         local _, err = sock:send(data)

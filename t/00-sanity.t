@@ -324,8 +324,8 @@ GET /t1
 qq{GET /t3 HTTP/1.1\r
 User-Agent: resty-requests\r
 Accept: */*\r
-Content-Type: application/octet-stream\r
 Connection: keep-alive\r
+Content-Type: application/octet-stream\r
 Host: 127.0.0.1\r
 Transfer-Encoding: chunked\r
 \r
@@ -333,6 +333,7 @@ hellohellohellohello}
 
 --- no_error_log
 [error]
+
 
 
 === TEST 5: normal GET request with bulk body
@@ -419,12 +420,8 @@ location /t1 {
 
         local requests = require "resty.requests"
         local url = "http://127.0.0.1:10088/t4?"
-        local headers = {
-            ["content-length"] = req_data_len
-        }
 
         local opts = {
-            headers = headers,
             body = get_body,
         }
 
