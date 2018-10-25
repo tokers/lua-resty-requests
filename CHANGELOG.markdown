@@ -1,8 +1,20 @@
 Table of Contents
 =================
 
+* [v0.5](#v0.5)
 * [v0.4](#v0.4)
 * [v0.3](#v0.3)
+
+v0.5
+====
+
+> Date: 2018.10.25
+
+This version has minor modifications but with a compatibilty broken change.
+
+* change: Content-Length header will not be deleted even when users are using the function request body fashion.
+* improve: now we don't launch ssl handshake if a reused connection is using.
+* bugfix: http2.lua cannot be copied to the correct openresty lualib dir.
 
 v0.4
 ====
