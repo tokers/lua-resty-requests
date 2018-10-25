@@ -23,6 +23,7 @@ our $http_config = << 'EOC';
 
         location = /t3 {
             lua_need_request_body on;
+            client_body_in_file_only on;
             content_by_lua_block {
                 local file = ngx.req.get_body_file()
                 local f = io.open(file, "r")
