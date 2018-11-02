@@ -154,13 +154,13 @@ local function proxy(self, request)
     end
 
     local sock = self.sock
-    local host = self.proxy
+    local host = self.https_proxy
 
     local message = new_tab(4, 0)
     message[1] = format("CONNECT %s HTTP/1.1\r\n", host)
     message[2] = format("Host: %s\r\n", host)
-    message[3] = format("User-Agent: resty-requests")
-    message[3] = format("Proxy-Connection: keep-alive")
+    message[3] = format("User-Agent: resty-requests\r\n")
+    message[4] = format("Proxy-Connection: keep-alive\r\n\r\n")
 
     sock:settimeout(self.send_timeout)
 
@@ -208,6 +208,12 @@ local function proxy(self, request)
             if not ok then
                 return nil, err
             end
+
+            -- read the last "\r\n"
+            local dummy, err = reader()
+            if dummy ~= "" then
+                return nil, err or "invalid chunked data"
+            end
         end
     else
         local len = tonumber(headers["Content-Length"])
@@ -243,7 +249,7 @@ local function connect(self, request)
         host = proxies[scheme].host
         port = proxies[scheme].port
         if scheme == "https" then
-            self.proxy = format("%s:%d", request.host, request.port)
+            self.https_proxy = format("%s:%d", request.host, request.port)
         end
     else
         host = request.host
