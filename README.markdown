@@ -175,10 +175,11 @@ limitations, see [lua-resty-http2](https://github.com/tokers/lua-resty-http2) fo
 }
 ```
 
+When using HTTPS proxy, a preceding CONNECT request will be sent to proxy server.
+
 * `hooks`, also a Lua table, represents the hook system that you can use to
 manipulate portions of the request process. Available hooks are:
-  * `response`, will be triggered immediately after receiving the response
-  headers
+  * `response`, will be triggered immediately after receiving the response headers
 
 you can assign Lua functions to hooks, these functions accept the [response object](#response-object) as the unique param.
 
