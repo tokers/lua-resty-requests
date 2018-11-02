@@ -45,6 +45,7 @@ Features
 * Stream interfaces to read request body.
 * HTTP/HTTPS proxy.
 * Latency metrics.
+* Session support.
 
 Synopsis
 ========
