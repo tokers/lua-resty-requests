@@ -10,6 +10,7 @@ Table of Contents
 
 * [Name](#name)
 * [Status](#status)
+* [Features](#features)
 * [Synopsis](#synopsis)
 * [Installation](#installation)
 * [Methods](#methods)
@@ -33,6 +34,17 @@ Status
 ======
 
 This Lua module is currently considered experimental.
+
+Features
+========
+
+* HTTP/1.0, HTTP/1.1 and HTTP/2 (WIP).
+* SSL/TLS support.
+* Chunked data support.
+* Convenient interfaces to support features like json, authorization and etc.
+* Stream interfaces to read request body.
+* HTTP/HTTPS proxy.
+* Latency metrics.
 
 Synopsis
 ========
