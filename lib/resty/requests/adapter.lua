@@ -194,25 +194,21 @@ local function proxy(self, request)
                 return nil, "invalid chunk header"
             end
 
-            if size == 0 then
-                -- read the last "\r\n"
-                local dummy, err = reader()
-                if dummy ~= "" then
-                    return nil, err or "invalid chunked data"
+            if size > 0 then
+                local ok, err = drop_data(sock, size)
+                if not ok then
+                    return nil, err
                 end
-
-                break
-            end
-
-            local ok, err = drop_data(sock, size)
-            if not ok then
-                return nil, err
             end
 
             -- read the last "\r\n"
             local dummy, err = reader()
             if dummy ~= "" then
                 return nil, err or "invalid chunked data"
+            end
+
+            if size == 0 then
+                break
             end
         end
     else
