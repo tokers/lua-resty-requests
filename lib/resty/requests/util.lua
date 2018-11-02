@@ -36,12 +36,13 @@ local STATE = {
     UNREADY = -1,
     READY = 0,
     CONNECT = 1,
-    HANDSHAKE = 2,
-    SEND_HEADER = 3,
-    SEND_BODY = 4,
-    RECV_HEADER = 5,
-    RECV_BODY = 6,
-    CLOSE = 7,
+    PROXY = 2,
+    HANDSHAKE = 3,
+    SEND_HEADER = 4,
+    SEND_BODY = 5,
+    RECV_HEADER = 6,
+    RECV_BODY = 7,
+    CLOSE = 8,
 }
 
 local STATE_NAME = {

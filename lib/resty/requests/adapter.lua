@@ -68,6 +68,166 @@ local function parse_header_line(line)
 end
 
 
+local function parse_headers(self)
+    local read_timeout = self.read_timeout
+    local sock = self.sock
+
+    sock:settimeout(read_timeout)
+
+    local reader = sock:receiveuntil("\r\n")
+
+    local status_line, err = reader()
+    if not status_line then
+        return nil, err
+    end
+
+    local part, err = parse_status_line(status_line)
+    if not part then
+        return nil, err or "bad status line"
+    end
+
+    local headers = dict(nil, 0, 9)
+    local first = true
+
+    while true do
+        local line, err = reader()
+        if not line then
+            return nil, err
+        end
+
+        if line == "" then
+            break
+        end
+
+        if first == true then
+            self.elapsed.ttfb = ngx_now() - self.start
+            first = false
+        end
+
+        local name, value, err = parse_header_line(line)
+        if err then
+            return nil, err
+        end
+
+        if name and value then
+            name = lower(name)
+
+            local ovalue = headers[name]
+            if not ovalue then
+                headers[name] = value
+
+            elseif is_tab(ovalue) then
+                insert(headers[name], value)
+
+            else
+                headers[name] = new_tab(2, 0)
+                headers[name][1] = ovalue
+                headers[name][2] = value
+            end
+        end
+    end
+
+    return status_line, part, headers
+end
+
+
+local function drop_data(sock, len)
+    while true do
+        if len == 0 then
+            return true
+        end
+
+        local size = len < 8192 and len or 8192
+        local _, err = sock:receive(size)
+        if err then
+            return nil, err
+        end
+
+        len = len - size
+    end
+end
+
+
+local function proxy(self, request)
+    if not self.https_proxy then
+        return true
+    end
+
+    local sock = self.sock
+    local host = self.proxy
+
+    local message = new_tab(4, 0)
+    message[1] = format("CONNECT %s HTTP/1.1\r\n", host)
+    message[2] = format("Host: %s\r\n", host)
+    message[3] = format("User-Agent: resty-requests")
+    message[3] = format("Proxy-Connection: keep-alive")
+
+    sock:settimeout(self.send_timeout)
+
+    local _, err = sock:send(message)
+    if err then
+        return nil, err
+    end
+
+    local status_line, part, headers = parse_headers(self)
+    if not status_line then
+        return nil, err
+    end
+
+    -- drop the body (if any)
+    if headers["Transfer-Encoding"] then
+        local reader = sock:receiveuntil("\r\n")
+        while true do
+            local size, err = reader()
+            if not size then
+                return nil, err
+            end
+
+            -- just ignore the chunk-extensions
+            local ext = size:find(";", nil, true)
+            if ext then
+                size = size:sub(1, ext - 1)
+            end
+
+            size = tonumber(size, 16)
+            if not size then
+                return nil, "invalid chunk header"
+            end
+
+            if size == 0 then
+                -- read the last "\r\n"
+                local dummy, err = reader()
+                if dummy ~= "" then
+                    return nil, err or "invalid chunked data"
+                end
+
+                break
+            end
+
+            local ok, err = drop_data(sock, size)
+            if not ok then
+                return nil, err
+            end
+        end
+    else
+        local len = tonumber(headers["Content-Length"])
+        if len > 0 then
+            local ok, err = drop_data(sock, len)
+            if not ok then
+                return nil, err
+            end
+        end
+    end
+
+    if part.status_code ~= 200 then
+        return nil, format("invalid status code: %d (https proxy)",
+                           part.status_code)
+    end
+
+    return true
+end
+
+
 local function connect(self, request)
     self.state = STATE.CONNECT
 
@@ -82,6 +242,9 @@ local function connect(self, request)
     if proxies and proxies[scheme] then
         host = proxies[scheme].host
         port = proxies[scheme].port
+        if scheme == "https" then
+            self.proxy = format("%s:%d", request.host, request.port)
+        end
     else
         host = request.host
         port = request.port
@@ -146,7 +309,7 @@ local function handshake(self, request)
     local reused_session = self.reused_session
     local server_name = self.server_name
     local sock = self.sock
-
+    sock:settimeout(self.send_timeout)
     local times, err = sock:getreusedtimes()
     if err then
         return nil, err
@@ -268,62 +431,10 @@ end
 local function read_header(self, request)
     self.state = STATE.RECV_HEADER
 
-    local read_timeout = self.read_timeout
-    local sock = self.sock
-
-    sock:settimeout(read_timeout)
-
-    local reader = sock:receiveuntil("\r\n")
-
-    local status_line, err = reader()
+    local status_line, part, headers = parse_headers(self)
     if not status_line then
-        return nil, err
-    end
-
-    local part, err = parse_status_line(status_line)
-    if not part then
-        return nil, err or "bad status line"
-    end
-
-    local headers = dict(nil, 0, 9)
-    local first = true
-
-    while true do
-        local line, err = reader()
-        if not line then
-            return nil, err
-        end
-
-        if line == "" then
-            break
-        end
-
-        if first == true then
-            self.elapsed.ttfb = ngx_now() - self.start
-            first = false
-        end
-
-        local name, value, err = parse_header_line(line)
-        if err then
-            return nil, err
-        end
-
-        if name and value then
-            name = lower(name)
-
-            local ovalue = headers[name]
-            if not ovalue then
-                headers[name] = value
-
-            elseif is_tab(ovalue) then
-                insert(headers[name], value)
-
-            else
-                headers[name] = new_tab(2, 0)
-                headers[name][1] = ovalue
-                headers[name][2] = value
-            end
-        end
+        -- part holds the error
+        return nil, part
     end
 
     self.response = response.new {
@@ -379,6 +490,8 @@ local function new(opts)
         h2_session_key = nil,
         h2_session = nil,
         h2_stream = nil,
+
+        https_proxy = nil, -- https proxy
 
         error_filter = opts.error_filter,
     }
@@ -523,6 +636,7 @@ end
 local function send(self, request)
     local stages = {
         connect,
+        proxy,
         handshake,
         send_header,
         send_body,
@@ -531,6 +645,7 @@ local function send(self, request)
 
     local distr = {
         "connect",
+        "proxy",
         "handshake",
         "send_header",
         "send_body",
