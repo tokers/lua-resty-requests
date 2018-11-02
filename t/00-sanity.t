@@ -137,6 +137,13 @@ our $http_config = << 'EOC';
                 ngx.print(t)
             }
         }
+
+        location = /t12 {
+            content_by_lua_block {
+                ngx.header["Content-Type"] = "application/json"
+                ngx.print("{\"a\": 1, \"b\": 2}")
+            }
+        }
     }
 EOC
 
@@ -995,5 +1002,36 @@ lua ssl certificate verify error
 GET /t
 
 --- response_body: OK
+--- no_error_log
+[error]
+
+
+=== TEST 19: r:json
+--- http_config eval: $::http_config
+--- config
+    location = /t {
+        content_by_lua_block {
+            local requests = require "resty.requests"
+            local url = "http://127.0.0.1:10088/t12"
+            local r, err = requests.get(url, { stream = true })
+            if not r then
+                ngx.log(ngx.ERR, "incorrect result: ", err)
+                return
+            end
+
+            local t, err = r:json()
+            if not t then
+                ngx.log(ngx.ERR, err)
+                return
+            end
+
+            ngx.print(t["a"], t["b"])
+        }
+    }
+
+--- request
+GET /t
+
+--- response_body: 12
 --- no_error_log
 [error]

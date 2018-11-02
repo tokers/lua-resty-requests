@@ -305,7 +305,7 @@ local function json(r)
         return nil, "not json"
     end
 
-    return cjson.encode(data)
+    return cjson.decode(data)
 end
 
 

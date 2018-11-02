@@ -330,9 +330,11 @@ In case of failure, `nil` and a Lua string described the error will be returned.
 
 * `body`, also holds a Lua function that returns the whole response body.
 
-* `content`, the response body, only valid in the non-stream mode.
-
 In case of failure, `nil` and a Lua string described the error will be returned.
+
+* `json`, holds a Lua function, serializes the body to a Lua table, note the `Content-Type` should be `application/json`. In case of failure, `nil` and an error string will be given.
+
+* `content`, the response body, only valid in the non-stream mode.
 
 * `elapsed`, a hash-like Lua table which represents the cost time (in seconds) for each stage.
   * `elapsed.connect`, cost time for the TCP 3-Way Handshake;
