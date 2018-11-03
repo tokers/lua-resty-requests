@@ -301,8 +301,10 @@ local function json(r)
     end
 
     local content_type = r.headers["Content-Type"]
-    if content_type ~= "application/json" then
-        return nil, "not json"
+    if content_type ~= "application/json"
+        and content_type ~= "application/json; charset=utf-8"
+        and content_type ~= "application/json; charset=UTF-8" then
+            return nil, "not json"
     end
 
     return cjson.decode(data)
