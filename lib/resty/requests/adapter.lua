@@ -81,13 +81,14 @@ local function parse_headers(self)
         return nil, err
     end
 
+    self.elapsed.ttfb = ngx_now() - self.start
+
     local part, err = parse_status_line(status_line)
     if not part then
         return nil, err or "bad status line"
     end
 
     local headers = dict(nil, 0, 9)
-    local first = true
 
     while true do
         local line, err = reader()
@@ -97,11 +98,6 @@ local function parse_headers(self)
 
         if line == "" then
             break
-        end
-
-        if first == true then
-            self.elapsed.ttfb = ngx_now() - self.start
-            first = false
         end
 
         local name, value, err = parse_header_line(line)
