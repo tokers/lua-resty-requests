@@ -144,6 +144,18 @@ our $http_config = << 'EOC';
                 ngx.print("{\"a\": 1, \"b\": 2}")
             }
         }
+        location = /t13 {
+            content_by_lua_block {
+                ngx.header["Content-Type"] = "application/json; charset=utf-8"
+                ngx.print("{\"a\": 1, \"b\": 2}")
+            }
+        }
+        location = /t14 {
+            content_by_lua_block {
+                ngx.header["Content-Type"] = "application/json; charset=UTF-8"
+                ngx.print("{\"a\": 1, \"b\": 2}")
+            }
+        }
     }
 EOC
 
