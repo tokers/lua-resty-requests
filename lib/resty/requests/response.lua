@@ -6,6 +6,7 @@ local util = require "resty.requests.util"
 local is_tab = util.is_tab
 local new_tab = util.new_tab
 local find = string.find
+local lower = string.lower
 local insert = table.insert
 local concat = table.concat
 local tonumber = tonumber
@@ -301,10 +302,15 @@ local function json(r)
     end
 
     local content_type = r.headers["Content-Type"]
+    if not content_type then
+        return nil, "not json"
+    end
+
+    content_type = lower(content_type)
     if content_type ~= "application/json"
-        and content_type ~= "application/json; charset=utf-8"
-        and content_type ~= "application/json; charset=UTF-8" then
-            return nil, "not json"
+       and content_type ~= "application/json; charset=utf-8"
+    then
+        return nil, "not json"
     end
 
     return cjson.decode(data)
