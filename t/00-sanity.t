@@ -140,7 +140,7 @@ our $http_config = << 'EOC';
 
         location = /t12 {
             content_by_lua_block {
-                ngx.header["Content-Type"] = "application/json"
+                ngx.header["Content-Type"] = ngx.var.arg_content_type
                 ngx.print("{\"a\": 1, \"b\": 2}")
             }
         }
@@ -1012,7 +1012,7 @@ GET /t
     location = /t {
         content_by_lua_block {
             local requests = require "resty.requests"
-            local url = "http://127.0.0.1:10088/t12"
+            local url = "http://127.0.0.1:10088/t12?content_type=application/json"
             local r, err = requests.get(url, { stream = true })
             if not r then
                 ngx.log(ngx.ERR, "incorrect result: ", err)
@@ -1026,12 +1026,42 @@ GET /t
             end
 
             ngx.print(t["a"], t["b"])
+
+            local url = "http://127.0.0.1:10088/t12?content_type=application/json; charset=UTF-8"
+            local r, err = requests.get(url, { stream = true })
+            if not r then
+                ngx.log(ngx.ERR, "incorrect result: ", err)
+                return
+            end
+
+            local t, err = r:json()
+            if not t then
+                ngx.log(ngx.ERR, err)
+                return
+            end
+
+            ngx.print(t["a"], t["b"])
+
+            local url = "http://127.0.0.1:10088/t12"
+            local r, err = requests.get(url, { stream = true })
+            if not r then
+                ngx.log(ngx.ERR, "incorrect result: ", err)
+                return
+            end
+
+            local t, err = r:json()
+            if t then
+                ngx.log(ngx.ERR, "unexpected json")
+                return
+            end
+
+            ngx.print("nil")
         }
     }
 
 --- request
 GET /t
 
---- response_body: 12
+--- response_body: 1212nil
 --- no_error_log
 [error]
