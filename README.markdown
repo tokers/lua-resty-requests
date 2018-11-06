@@ -106,7 +106,7 @@ $ luarocks install lua-resty-requests
 * [OPM](https://github.com/openresty/opm):
 
 ```bash
-$ opm get thibaultcha/lua-resty-mlcache
+$ opm get thibaultcha/lua-resty-requests
 ```
 
 * Manually:
