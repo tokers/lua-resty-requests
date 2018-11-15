@@ -1,9 +1,23 @@
 Table of Contents
 =================
 
+* [v0.6](#v0.6)
 * [v0.5](#v0.5)
 * [v0.4](#v0.4)
 * [v0.3](#v0.3)
+
+v0.6
+====
+
+> Date: 2018.11.15
+
+This version added some new features like r:json(), HTTPS proxy and some bugfixs.
+
+* feature: supported HTTPS proxy based on HTTP CONNECT method.
+* feature: r:json(), now one can get a Lua table which deserializes the response body from calling this method.
+* feature: added a new option "use_default_type" to control whether adds a default content-type request header when request body exists.
+* bugfix: the ttfb metric always records the "time to first header".
+* bugfix: add "charset; utf-8" check to json response object "content-type" header, thanks Happy Totem for the report and pull request.
 
 v0.5
 ====
