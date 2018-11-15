@@ -95,7 +95,7 @@ end
 
 local function set_config(opts)
     opts = opts or {}
-    local config = new_tab(0, 13)
+    local config = new_tab(0, 14)
 
     -- 1) timeouts
     local timeouts = opts.timeouts
@@ -185,6 +185,9 @@ local function set_config(opts)
     else
         config.stream = true
     end
+
+    -- 14) use_default_type
+    config.use_default_type = opts.use_default_type ~= false
 
     return config
 end

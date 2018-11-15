@@ -81,7 +81,7 @@ local function prepare(url_parts, session, config)
                 headers["Transfer-Encoding"] = "chunked"
             end
 
-            if not headers["Content-Type"] then
+            if not headers["Content-Type"] and config.use_default_type then
                 headers["Content-Type"] = "application/octet-stream"
             end
 
@@ -89,12 +89,12 @@ local function prepare(url_parts, session, config)
             headers["Content-Length"] = #body
             headers["Transfer-Encoding"] = nil
 
-            if not headers["Content-Type"] then
+            if not headers["Content-Type"] and config.use_default_type then
                 headers["Content-Type"] = "text/plain"
             end
 
         elseif is_tab(body) then
-            if not headers["Content-Type"] then
+            if not headers["Content-Type"] and config.use_default_type then
                 headers["Content-Type"] = "application/x-www-form-urlencoded"
             end
 

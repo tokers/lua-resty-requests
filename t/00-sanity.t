@@ -1065,3 +1065,40 @@ GET /t
 --- response_body: 1212nil
 --- no_error_log
 [error]
+
+
+=== TEST 20: use_default_type
+--- http_config eval: $::http_config
+--- config
+    location = /t {
+        content_by_lua_block {
+            local requests = require "resty.requests"
+            local url = "http://127.0.0.1:10088/t1"
+            local opts = {
+                use_default_type = false,
+                body = "abc",
+                stream = false,
+            }
+            local r, err = requests.get(url, opts)
+            if not r then
+                ngx.log(ngx.ERR, "incorrect result: ", err)
+                return
+            end
+
+            ngx.print(r.content)
+        }
+    }
+--- request
+GET /t
+
+--- response_body eval
+qq{GET /t1 HTTP/1.1\r
+User-Agent: resty-requests\r
+Accept: */*\r
+Connection: keep-alive\r
+Content-Length: 3\r
+Host: 127.0.0.1\r
+\r
+};
+--- no_error_log
+[error]
