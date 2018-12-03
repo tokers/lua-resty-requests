@@ -205,7 +205,7 @@ local function new(opts)
     end
 
     if r._http_ver ~= HTTP20 then
-        local chunk = r.headers["Transfer-Encoding"]
+        local chunk = r.headers["transfer-encoding"]
         if chunk and find(chunk, "chunked", nil, true) then
             r._chunk = {
                 size = 0, -- current chunked header size
@@ -214,14 +214,14 @@ local function new(opts)
                 reader = r._adapter:reader("\r\n"),
             }
         else
-            r._rest = tonumber(r.headers["Content-Length"])
+            r._rest = tonumber(r.headers["content-length"])
             if r._rest == 0 or no_body(r) then
                 r._read_eof = true
             end
         end
     end
 
-    local connection = r.headers["Connection"]
+    local connection = r.headers["connection"]
     if connection == "keep-alive" or r._http_ver == HTTP20 then
         r._keepalive = true
     end
@@ -301,7 +301,7 @@ local function json(r)
         return nil, err
     end
 
-    local content_type = r.headers["Content-Type"]
+    local content_type = r.headers["content-type"]
     if not content_type then
         return nil, "not json"
     end
