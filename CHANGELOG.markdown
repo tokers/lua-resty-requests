@@ -1,10 +1,20 @@
 Table of Contents
 =================
 
+* [v0.7](#v0.7)
 * [v0.6](#v0.6)
 * [v0.5](#v0.5)
 * [v0.4](#v0.4)
 * [v0.3](#v0.3)
+
+v0.7
+====
+
+> Date: 2018.12.03
+
+This version refactored the logic about headers indexing, also fixed the relevant bug.
+
+* refactored the request/response headers table logic.
 
 v0.6
 ====
