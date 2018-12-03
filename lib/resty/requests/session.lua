@@ -7,7 +7,6 @@ local adapter = require "resty.requests.adapter"
 local setmetatable = setmetatable
 local format = string.format
 local pairs = pairs
-local new_tab = util.new_tab
 local ngx_now = ngx.now
 
 local _M = { _VERSION = "0.2" }
@@ -17,7 +16,7 @@ local BUILTIN_HEADERS = util.BUILTIN_HEADERS
 local send_request
 
 local function new()
-    local headers = new_tab(0, 8)
+    local headers = util.dict(nil, 0, 8)
 
     for k, v in pairs(BUILTIN_HEADERS) do
         headers[k] = v

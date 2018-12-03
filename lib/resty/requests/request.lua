@@ -71,31 +71,31 @@ local function prepare(url_parts, session, config)
 
     if json then
         content = cjson.encode(json)
-        headers["Content-Length"] = #content
-        headers["Content-Type"] = "application/json"
+        headers["content-length"] = #content
+        headers["content-type"] = "application/json"
     else
         content = body
         if is_func(body) then
             -- users may know their request body size
-            if not headers["Content-Length"] then
-                headers["Transfer-Encoding"] = "chunked"
+            if not headers["content-length"] then
+                headers["transfer-encoding"] = "chunked"
             end
 
-            if not headers["Content-Type"] and config.use_default_type then
-                headers["Content-Type"] = "application/octet-stream"
+            if not headers["content-type"] and config.use_default_type then
+                headers["content-type"] = "application/octet-stream"
             end
 
         elseif is_str(body) then
-            headers["Content-Length"] = #body
-            headers["Transfer-Encoding"] = nil
+            headers["content-length"] = #body
+            headers["transfer-encoding"] = nil
 
-            if not headers["Content-Type"] and config.use_default_type then
-                headers["Content-Type"] = "text/plain"
+            if not headers["content-type"] and config.use_default_type then
+                headers["content-type"] = "text/plain"
             end
 
         elseif is_tab(body) then
-            if not headers["Content-Type"] and config.use_default_type then
-                headers["Content-Type"] = "application/x-www-form-urlencoded"
+            if not headers["content-type"] and config.use_default_type then
+                headers["content-type"] = "application/x-www-form-urlencoded"
             end
 
             local param = new_tab(4, 0)
@@ -104,24 +104,24 @@ local function prepare(url_parts, session, config)
             end
 
             content = concat(param, "&")
-            headers["Content-Length"] = #content
-            headers["Transfer-Encoding"] = nil
+            headers["content-length"] = #content
+            headers["transfer-encoding"] = nil
         end
     end
 
-    if not headers["Host"] then
-        headers["Host"] = url_parts.host
+    if not headers["host"] then
+        headers["host"] = url_parts.host
     end
 
-    if headers["Transfer-Encoding"] then
-        headers["Content-Length"] = nil
+    if headers["transfer-encoding"] then
+        headers["content-length"] = nil
     end
 
-    headers["Connection"] = "keep-alive"
+    headers["connection"] = "keep-alive"
 
     local auth = session.auth
     if auth then
-        headers["Authorization"] = auth
+        headers["authorization"] = auth
     end
 
     local cookie = session.cookie
@@ -131,7 +131,7 @@ local function prepare(url_parts, session, config)
             insert(plain, ("%s=%s"):format(k, v))
         end
 
-        headers["Cookie"] = concat(plain, "; ")
+        headers["cookie"] = concat(plain, "; ")
     end
 
     return content
@@ -146,7 +146,7 @@ local function new(method, url, session, config)
 
     local body = prepare(url_parts, session, config)
 
-    local expect = session.headers["Expect"] == "100-continue"
+    local expect = session.headers["expect"] == "100-continue"
 
     local r = {
         method = method,

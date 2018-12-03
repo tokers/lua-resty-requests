@@ -182,10 +182,10 @@ GET /t
 
 --- response_body eval
 qq{GET /t1?foo=bar&c= HTTP/1.1\r
-User-Agent: resty-requests\r
-Accept: */*\r
-Connection: keep-alive\r
-Host: 127.0.0.1\r
+host: 127.0.0.1\r
+user-agent: resty-requests\r
+accept: */*\r
+connection: keep-alive\r
 \r
 };
 
@@ -235,11 +235,11 @@ GET /t
 
 --- response_body eval
 qq{GET /t1 HTTP/1.1\r
-User-Agent: resty-requests\r
-Accept: */*\r
-Connection: keep-alive\r
-Cache-Control: max-age=0\r
-Host: 127.0.0.1\r
+cache-control: max-age=0\r
+user-agent: resty-requests\r
+accept: */*\r
+connection: keep-alive\r
+host: 127.0.0.1\r
 \r
 }
 
@@ -280,12 +280,12 @@ GET /t1
 --- status_code: 200
 --- response_body eval
 qq{GET /t3?usebody=true&af=b HTTP/1.1\r
-User-Agent: resty-requests\r
-Accept: */*\r
-Content-Type: text/plain\r
-Connection: keep-alive\r
-Content-Length: 18\r
-Host: 127.0.0.1\r
+host: 127.0.0.1\r
+content-length: 18\r
+user-agent: resty-requests\r
+accept: */*\r
+connection: keep-alive\r
+content-type: text/plain\r
 \r
 你好吗？Hello?}
 
@@ -329,12 +329,12 @@ GET /t1
 
 --- response_body eval
 qq{GET /t3 HTTP/1.1\r
-User-Agent: resty-requests\r
-Accept: */*\r
-Connection: keep-alive\r
-Content-Type: application/octet-stream\r
-Host: 127.0.0.1\r
-Transfer-Encoding: chunked\r
+host: 127.0.0.1\r
+content-type: application/octet-stream\r
+user-agent: resty-requests\r
+accept: */*\r
+connection: keep-alive\r
+transfer-encoding: chunked\r
 \r
 hellohellohellohello}
 
@@ -524,10 +524,10 @@ GET /t1
 
 --- response_body eval
 qq{GET /t1?test=event_hook HTTP/1.1\r
-User-Agent: resty-requests\r
-Accept: */*\r
-Connection: keep-alive\r
-Host: 127.0.0.1\r
+host: 127.0.0.1\r
+user-agent: resty-requests\r
+accept: */*\r
+connection: keep-alive\r
 \r
 };
 
@@ -1093,11 +1093,11 @@ GET /t
 
 --- response_body eval
 qq{GET /t1 HTTP/1.1\r
-User-Agent: resty-requests\r
-Accept: */*\r
-Connection: keep-alive\r
-Content-Length: 3\r
-Host: 127.0.0.1\r
+host: 127.0.0.1\r
+content-length: 3\r
+user-agent: resty-requests\r
+accept: */*\r
+connection: keep-alive\r
 \r
 };
 --- no_error_log

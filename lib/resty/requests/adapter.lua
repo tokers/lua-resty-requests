@@ -106,6 +106,7 @@ local function parse_headers(self)
         end
 
         if name and value then
+            -- FIXME transform underscore to hyphen
             name = lower(name)
 
             local ovalue = headers[name]

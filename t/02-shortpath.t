@@ -77,11 +77,11 @@ GET /t
 
 --- response_body eval
 qq{GET /t1 HTTP/1.1\r
-User-Agent: resty-requests\r
-Accept: */*\r
-Cookie: name3=value3; name1=value1; name2=value2\r
-Connection: keep-alive\r
-Host: 127.0.0.1\r
+host: 127.0.0.1\r
+cookie: name3=value3; name1=value1; name2=value2\r
+user-agent: resty-requests\r
+accept: */*\r
+connection: keep-alive\r
 \r
 };
 
@@ -125,11 +125,11 @@ GET /t
 
 --- response_body eval
 qq{GET /t1 HTTP/1.1\r
-User-Agent: resty-requests\r
-Accept: */*\r
-Authorization: Basic YWxleDoxMjM0NTY=\r
-Connection: keep-alive\r
-Host: 127.0.0.1\r
+host: 127.0.0.1\r
+authorization: Basic YWxleDoxMjM0NTY=\r
+user-agent: resty-requests\r
+accept: */*\r
+connection: keep-alive\r
 \r
 };
 

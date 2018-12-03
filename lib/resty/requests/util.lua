@@ -3,19 +3,22 @@
 local type = type
 local pcall = pcall
 local pairs = pairs
+local error = error
 local rawget = rawget
 local setmetatable = setmetatable
 local lower = string.lower
-local upper = string.upper
 local ngx_gsub = ngx.re.gsub
-local ngx_sub = ngx.re.sub
 local base64 = ngx.encode_base64
 
 local _M = { _VERSION = '0.1' }
 
 local header_mt = {
     __index = function(t, k)
-        local name = ngx_gsub(lower(k), "_", "-", "jo")
+        local name, _, err = ngx_gsub(lower(k), "_", "-", "jo")
+        if err then
+            error(err)
+        end
+
         return rawget(t, name)
     end
 }
@@ -28,8 +31,8 @@ if not ok then
 end
 
 local BUILTIN_HEADERS = {
-    ["Accept"]     = "*/*",
-    ["User-Agent"] = "resty-requests",
+    ["accept"]     = "*/*",
+    ["user-agent"] = "resty-requests",
 }
 
 local STATE = {
@@ -69,15 +72,6 @@ local function is_tab(obj) return type(obj) == "table" end
 local function is_func(obj) return type(obj) == "function" end
 
 
-local function normalize_header_name(name)
-    local f = function(m) return upper(m[1]) end
-
-    name = ngx_sub(name, "(^[a-z])", f)
-    name = ngx_sub(name, "(-[a-z])", f)
-    return name
-end
-
-
 local function dict(d, narr, nrec)
     if not d then
         d = new_tab(narr, nrec)
@@ -115,12 +109,17 @@ local function set_config(opts)
     end
 
     -- 3) request headers
-    config.headers = dict(opts.headers, 0, 5)
+    config.headers = dict(nil, 0, 5)
 
-    for k, v in pairs(config.headers) do
-        local name = normalize_header_name(k)
-        config.headers[k] = nil
-        config.headers[name] = v
+    if opts.headers then
+        for k, v in pairs(opts.headers) do
+            local name, _, err = ngx_gsub(lower(k), "_", "-", "jo")
+            if err then
+                error(err)
+            end
+
+            config.headers[name] = v
+        end
     end
 
     for k, v in pairs(BUILTIN_HEADERS) do
