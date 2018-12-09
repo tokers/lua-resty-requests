@@ -2,6 +2,7 @@
 
 local util = require "resty.requests.util"
 local response = require "resty.requests.response"
+local proxies = require "resty.requests.proxies"
 local check_http2, http2 = pcall(require, "resty.http2")
 
 local pairs = pairs
@@ -19,7 +20,7 @@ local new_tab = util.new_tab
 local is_tab = util.is_tab
 local is_func = util.is_func
 
-local _M = { _VERSION = "0.4" }
+local _M = { _VERSION = "0.5" }
 local mt = { __index = _M }
 
 local DEFAULT_POOL_SIZE = 30
@@ -146,6 +147,10 @@ end
 
 
 local function proxy(self, request)
+    if self.socks5_proxy then
+        return proxies.socks5(self.sock, request)
+    end
+
     if not self.https_proxy then
         return true
     end
@@ -155,7 +160,7 @@ local function proxy(self, request)
 
     local message = new_tab(4, 0)
     message[1] = format("CONNECT %s HTTP/1.1\r\n", host)
-    message[2] = format("Host: %s\r\n", host)
+    message[2] = format("Host: %s:%d\r\n", request.host, request.port)
     message[3] = format("User-Agent: resty-requests\r\n")
     message[4] = format("Proxy-Connection: keep-alive\r\n\r\n")
 
@@ -242,7 +247,9 @@ local function connect(self, request)
         host = proxies[scheme].host
         port = proxies[scheme].port
         if scheme == "https" then
-            self.https_proxy = format("%s:%d", request.host, request.port)
+            self.https_proxy = true
+        elseif scheme == "socks5" then
+            self.socks5_proxy = true
         end
     else
         host = request.host
@@ -491,6 +498,7 @@ local function new(opts)
         h2_stream = nil,
 
         https_proxy = nil, -- https proxy
+        socks5_proxy = nil, -- socks5 proxy
 
         error_filter = opts.error_filter,
     }
