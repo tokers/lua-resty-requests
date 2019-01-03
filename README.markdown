@@ -380,7 +380,7 @@ Copyright and License
 
 The bundle itself is licensed under the 2-clause BSD license.
 
-Copyright (c) 2017-2018, Alex Zhang.
+Copyright (c) 2017-2019, Alex Zhang.
 
 This module is licensed under the terms of the BSD license.
 
