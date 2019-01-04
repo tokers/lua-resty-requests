@@ -33,7 +33,7 @@ Table of Contents
 Status
 ======
 
-This Lua module is currently considered experimental.
+This Lua module now can be considered as production ready.
 
 Features
 ========
