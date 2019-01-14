@@ -167,7 +167,7 @@ The third param, an optional Lua table, which contains a number of  options:
 You can use the method [requests.state](#state) to get the textual meaning of these values.
 
 
-* `timeouts`, an array-like table, `timeouts[1]`, `timeouts[2]` and `timeouts[3]` represents `connect timeout`, `send timeout` and `read timeout` respectively (in seconds).
+* `timeouts`, an array-like table, `timeouts[1]`, `timeouts[2]` and `timeouts[3]` represents `connect timeout`, `send timeout` and `read timeout` respectively (in milliseconds).
 
 * `http10` specify whether the `HTTP/1.0` should be used, default verion is `HTTP/1.1`.
 * `http20` specify whether the `HTTP/2` should be used, default verion is `HTTP/1.1`.
