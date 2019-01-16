@@ -42,7 +42,7 @@ Features
 * SSL/TLS support.
 * Chunked data support.
 * Convenient interfaces to support features like json, authorization and etc.
-* Stream interfaces to read request body.
+* Stream interfaces to read body.
 * HTTP/HTTPS proxy.
 * Latency metrics.
 * Session support.
@@ -106,7 +106,7 @@ $ luarocks install lua-resty-requests
 * [OPM](https://github.com/openresty/opm):
 
 ```bash
-$ opm get thibaultcha/lua-resty-requests
+$ opm get tokers/lua-resty-requests
 ```
 
 * Manually:
