@@ -18,10 +18,12 @@ local dict = util.dict
 local new_tab = util.new_tab
 local is_tab = util.is_tab
 local is_func = util.is_func
+local ngx_lua_version = ngx.config.ngx_lua_version
 
 local _M = { _VERSION = "0.4" }
 local mt = { __index = _M }
 
+local DEFUALT_POOL_BACKLOG = 10
 local DEFAULT_POOL_SIZE = 30
 local DEFAULT_IDLE_TIMEOUT = 60 * 1000
 local DEFAULT_CONN_TIMEOUT = 2 * 1000
@@ -289,7 +291,16 @@ local function connect(self, request)
         return true
     end
 
-    return sock:connect(host, port)
+    if ngx_lua_version < 10014 or self.h2_session_key then
+        return sock:connect(host, port)
+    end
+
+    local opts = {
+        pool_size = self.pool_size,
+        backlog = DEFUALT_POOL_BACKLOG,
+    }
+
+    return sock:connect(host, port, opts)
 end
 
 
@@ -526,7 +537,12 @@ local function close(self, keepalive)
         end
 
         local idle_timeout = self.conn_idle_timeout
-        return sock:setkeepalive(idle_timeout, self.pool_size)
+
+        if self.h2 or ngx_lua_version < 10014 then
+            return sock:setkeepalive(idle_timeout, self.pool_size)
+        end
+
+        return sock:setkeepalive(idle_timeout)
     end
 
     if self.h2 then
