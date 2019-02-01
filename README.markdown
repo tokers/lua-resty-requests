@@ -111,10 +111,10 @@ $ opm get tokers/lua-resty-requests
 
 * Manually:
 
-Just tweeks the `lua_cpackage_path` or the `LUA_PATH` environment variable, to add the installation path for this Lua module:
+Just tweeks the `lua_package_path` or the `LUA_PATH` environment variable, to add the installation path for this Lua module:
 
 ```
-/path/to/lua-resty-requests/lib/?.lua;
+/path/to/lua-resty-requests/lib/resty/?.lua;
 ```
 
 Methods
