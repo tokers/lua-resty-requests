@@ -1,6 +1,7 @@
 -- Copyright (C) Alex Zhang
 
 local util = require "resty.requests.util"
+local resty_socket = require "resty.socket"
 local response = require "resty.requests.response"
 local check_http2, http2 = pcall(require, "resty.http2")
 
@@ -11,9 +12,10 @@ local lower = string.lower
 local format = string.format
 local insert = table.insert
 local concat = table.concat
-local socket = ngx.socket.tcp
+local tcp_socket = ngx.socket.tcp
 local ngx_match = ngx.re.match
 local ngx_now = ngx.now
+local get_phase = ngx.get_phase
 local dict = util.dict
 local new_tab = util.new_tab
 local is_tab = util.is_tab
@@ -40,6 +42,21 @@ if check_http2 then
     -- the last entry in the single linked list
     HTTP2_MEMO_LAST_ENTRY = new_tab(0, 4)
     LAST_HTTP2_KEY = new_tab(0, 4)
+end
+
+
+local function socket()
+    local phase = get_phase()
+
+    -- ignore the other non-yiedable phases, since these phases are
+    -- requests-specific and we shouldn't use the blocking APIs, it will hurt
+    -- the event loop, so just let the Cosocket throws "API disabled ..."
+    -- error.
+    if phase == "init" or phase == "init_worker" then
+        return resty_socket()
+    end
+
+    return tcp_socket()
 end
 
 

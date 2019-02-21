@@ -1,9 +1,11 @@
 package = "lua-resty-requests"
-version = "0.7-1"
+version = "0.7.1-1"
+
 source = {
    url = "git://github.com/tokers/lua-resty-requests",
    tag = "v0.7",
 }
+
 description = {
    summary = "Yet Another HTTP library for OpenResty",
    detailed = [[
@@ -13,9 +15,12 @@ description = {
    homepage = "https://github.com/tokers/lua-resty-requests",
    maintainer = "Alex Zhang <zchao1995@gmail.com>",
 }
+
 dependencies = {
-   "lua >= 5.1"
+   "lua >= 5.1",
+   "lua-resty-socket == 0.0.4",
 }
+
 build = {
    type = "builtin",
    modules = {
