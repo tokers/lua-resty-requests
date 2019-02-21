@@ -1,11 +1,29 @@
 Table of Contents
 =================
 
+* [v0.7.1](#v0.7.1)
 * [v0.7](#v0.7)
 * [v0.6](#v0.6)
 * [v0.5](#v0.5)
 * [v0.4](#v0.4)
 * [v0.3](#v0.3)
+
+v0.7.1
+======
+
+The old version is not so semantic, now we tweaked it.
+
+> Date: 2019.02.21
+
+This version just contains some minor improvements.
+
+* doc: fix timeout misrepresent, seconds => milliseconds. Thanks jetz for the
+patch.
+* doc: README fix typo ("Authorization") 7 hours. Thanks Chris Kuehl for the
+patch.
+* doc: fixed some documentary typos.
+* feature: used lua-resty-socket when the phase is not yieldable.
+* feature: used cosocket pool backlog if the ngx_lua is new enough.
 
 v0.7
 ====
