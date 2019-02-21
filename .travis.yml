@@ -18,5 +18,6 @@ before_script:
     - sudo apt-get install make build-essential lua5.1 -y
     - source .ci/setup.sh
     - luarocks install luacheck
+    - luarocks install lua-resty-socket
 script:
     - OPENRESTY_INSTALL_DIR=$INSTALL_CACHE/openresty-$V_OPENRESTY make test
