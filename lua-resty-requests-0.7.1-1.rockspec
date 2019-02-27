@@ -18,7 +18,7 @@ description = {
 
 dependencies = {
    "lua >= 5.1",
-   "lua-resty-socket == 0.0.4",
+   "lua-resty-socket == 1.0.1",
 }
 
 build = {
