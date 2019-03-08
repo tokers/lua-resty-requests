@@ -61,7 +61,7 @@ end
 
 
 local function parse_status_line(status_line)
-    local m, err = ngx_match(status_line, "HTTP/(.+?)\\s.*?(\\d+).*", "jo")
+    local m, err = ngx_match(status_line, "(HTTP/.+?)\\s.*?(\\d+).*", "jo")
     if not m then
         return nil, err
     end

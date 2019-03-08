@@ -221,8 +221,13 @@ local function new(opts)
         end
     end
 
+    local http_ver = r._http_ver
     local connection = r.headers["connection"]
-    if connection == "keep-alive" or r._http_ver == HTTP20 then
+
+    if connection == "keep-alive"
+       or (not connection and http_ver == HTTP11) -- HTTP/1.1 default behavior
+       or http_ver == HTTP20
+    then
         r._keepalive = true
     end
 
