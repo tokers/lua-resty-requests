@@ -3,7 +3,7 @@
 local util = require "resty.requests.util"
 local session = require "resty.requests.session"
 
-local _M = { _VERSION = "0.7.1" }
+local _M = { _VERSION = "0.7.2" }
 
 
 local function request(method, url, opts)
