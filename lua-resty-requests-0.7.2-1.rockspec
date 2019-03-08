@@ -1,9 +1,9 @@
 package = "lua-resty-requests"
-version = "0.7.1-1"
+version = "0.7.2-1"
 
 source = {
    url = "git://github.com/tokers/lua-resty-requests",
-   tag = "v0.7.1",
+   tag = "v0.7.2",
 }
 
 description = {

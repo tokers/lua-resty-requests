@@ -1,12 +1,23 @@
 Table of Contents
 =================
 
+* [v0.7.2](#v0.7.2)
 * [v0.7.1](#v0.7.1)
 * [v0.7](#v0.7)
 * [v0.6](#v0.6)
 * [v0.5](#v0.5)
 * [v0.4](#v0.4)
 * [v0.3](#v0.3)
+
+v0.7.2
+======
+
+> Date: 2019.03.08
+
+* doc: added the annotations about the compatibilty for the blocking phases.
+* change: updated the lua-resty-socket dependency.
+* bugfix: fixed the bootless keep-alive feature, now it works when the
+condition is conformed.
 
 v0.7.1
 ======
