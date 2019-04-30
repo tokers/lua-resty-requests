@@ -6,7 +6,7 @@ lua-resty-requests - Yet Another HTTP Library for OpenResty.
 ![Build Status](https://travis-ci.org/tokers/lua-resty-requests.svg?branch=master)
 
 ```bash
-resty -e 'print(require "resty.requests".get("https://github.com", { stream = false}).content)'
+resty -e 'print(require "resty.requests".get{ url = "https://github.com", stream = false }.content)'
 ```
 
 Table of Contents
@@ -101,6 +101,9 @@ ngx.print(body)
 -- end
 --
 -- ngx.print(r.content)
+
+-- or you can use the shortcut way to make the code cleaner.
+local r, err = requests.get { url = url, stream = false }
 ```
 
 Installation
@@ -132,6 +135,7 @@ Methods
 ### request
 
 **syntax**: *local r, err = requests.request(method, url, opts?)*
+**syntax**: *local r, err = requests.request { method = method, url = url, ... }
 
 This is the pivotal method in `lua-resty-requests`, it will return a [response object](#response-object) `r`. In the case of failure, `nil`, and a Lua string which describles the corresponding error will be given.
 
@@ -242,6 +246,7 @@ The `Cookie` header will be `PHPSESSID=298zf09hf012fh2; csrftoken=u32t4o3tb3gg43
 * `stream`, takes a boolean value, specifies whether reading the body in the stream mode, and it will be true by default. 
 
 ### state
+
 **syntax**: *local state_name = requests.state(state)*
 
 The method is used for getting the textual meaning of these values:
@@ -257,7 +262,9 @@ The method is used for getting the textual meaning of these values:
 a Lua string `"unknown"` will be returned if `state` isn't one of the above values.
 
 ### get
+
 **syntax**: *local r, err = requests.get(url, opts?)*
+**syntax**: *local r, err = requests.get { url = url, ... }*
 
 Sends a HTTP GET request. This is identical with
 
@@ -267,6 +274,7 @@ requests.request("GET", url, opts)
 
 ### head
 **syntax**: *local r, err = requests.head(url, opts?)*
+**syntax**: *local r, err = requests.head { url = url, ... }*
 
 Sends a HTTP HEAD request. This is identical with
 
@@ -276,6 +284,7 @@ requests.request("HEAD", url, opts)
 
 ### post
 **syntax**: *local r, err = requests.post(url, opts?)*
+**syntax**: *local r, err = requests.post { url = url, ... }*
 
 Sends a HTTP POST request. This is identical with
 
@@ -285,6 +294,7 @@ requests.request("POST", url, opts)
 
 ### put
 **syntax**: *local r, err = requests.put(url, opts?)*
+**syntax**: *local r, err = requests.put { url = url, ... }*
 
 Sends a HTTP PUT request. This is identical with
 
@@ -294,6 +304,7 @@ requests.request("PUT", url, opts)
 
 ### delete
 **syntax**: *local r, err = requests.delete(url, opts?)*
+**syntax**: *local r, err = requests.delete { url = url, ... }*
 
 Sends a HTTP DELETE request. This is identical with
 
@@ -303,6 +314,7 @@ requests.request("DELETE", url, opts)
 
 ### options
 **syntax**: *local r, err = requests.options(url, opts?)*
+**syntax**: *local r, err = requests.options { url = url, ... }*
 
 Sends a HTTP OPTIONS request. This is identical with
 
@@ -312,6 +324,7 @@ requests.request("OPTIONS", url, opts)
 
 ### patch
 **syntax**: *local r, err = requests.patch(url, opts?)*
+**syntax**: *local r, err = requests.patch { url = url, ... }*
 
 Sends a HTTP PATCH request. This is identical with
 
