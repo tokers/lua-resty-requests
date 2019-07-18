@@ -760,12 +760,21 @@ location = /t1 {
         local opts = {
             stream = false,
             headers = {
-                Expect = "100-continue",
+                Expect = "100-Continue",
             },
 
             body = "你好世界你好世界",
         }
 
+        local r, err = requests.post(url, opts)
+        if not r then
+            ngx.log(ngx.ERR, err)
+            return
+        end
+
+        ngx.print(r.content)
+
+        opts.headers["Expect"] = "100-continue"
         local r, err = requests.post(url, opts)
         if not r then
             ngx.log(ngx.ERR, err)
@@ -783,7 +792,7 @@ location = /t1 {
 --- request
 GET /t1
 
---- response_body: 你好世界你好世界
+--- response_body: 你好世界你好世界你好世界你好世界
 
 --- grep_error_log: invalid 100-continue response
 --- grep_error_log_out
