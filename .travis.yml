@@ -11,7 +11,7 @@ env:
         - DOWNLOAD_CACHE=$HOME/download_cache
         - INSTALL_CACHE=$HOME/install_cache
 install:
-    - cpanm -v --notest Test::Nginx
+    - cpanm -v --notest --sudo Test::Nginx
 before_script:
     - sudo apt-get update -q
     - sudo apt-get install libreadline-dev libncurses5-dev libpcre3-dev libssl-dev -y

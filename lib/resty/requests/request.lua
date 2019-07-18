@@ -14,6 +14,7 @@ local insert = table.insert
 local concat = table.concat
 local find = string.find
 local sub = string.sub
+local lower = string.lower
 local format = string.format
 local ngx_match = ngx.re.match
 local _M = { _VERSION = "0.2" }
@@ -145,8 +146,14 @@ local function new(method, url, session, config)
     end
 
     local body = prepare(url_parts, session, config)
+    local expect = false
 
-    local expect = session.headers["expect"] == "100-continue"
+    do
+        local expect_field = session.headers["expect"]
+        if expect_field then
+            expect = lower(expect_field) == "100-continue"
+        end
+    end
 
     local r = {
         method = method,
