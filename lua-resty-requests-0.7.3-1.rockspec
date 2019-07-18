@@ -1,9 +1,9 @@
 package = "lua-resty-requests"
-version = "0.7.2-1"
+version = "0.7.3-1"
 
 source = {
    url = "git://github.com/tokers/lua-resty-requests",
-   tag = "v0.7.2",
+   tag = "v0.7.3",
 }
 
 description = {
@@ -18,7 +18,7 @@ description = {
 
 dependencies = {
    "lua >= 5.1",
-   "lua-resty-socket == 1.0.1",
+   "lua-resty-socket == 1.0.0",
 }
 
 build = {

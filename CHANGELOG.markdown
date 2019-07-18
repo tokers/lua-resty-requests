@@ -1,6 +1,8 @@
 Table of Contents
 =================
 
+* [v0.7.3](#v0.7.3)
+* [v0.7.2](#v0.7.2)
 * [v0.7.2](#v0.7.2)
 * [v0.7.1](#v0.7.1)
 * [v0.7](#v0.7)
@@ -8,6 +10,16 @@ Table of Contents
 * [v0.5](#v0.5)
 * [v0.4](#v0.4)
 * [v0.3](#v0.3)
+
+
+v0.7.3
+======
+
+> Date: 2019.07.18
+
+* bugfix: treat Expect header value case-insensitive.
+* test: download Test::Nginx with the super user permission.
+* feature: shortcut calling for requests APIs.
 
 v0.7.2
 ======

@@ -7,7 +7,7 @@ local session = require "resty.requests.session"
 local is_tab = util.is_tab
 local error = error
 
-local _M = { _VERSION = "0.7.2" }
+local _M = { _VERSION = "0.7.3" }
 
 
 local function request_shortcut(method, opts)
