@@ -8,6 +8,7 @@ local rawget = rawget
 local setmetatable = setmetatable
 local lower = string.lower
 local ngx_gsub = ngx.re.gsub
+local ngx_re_match = ngx.re.match
 local base64 = ngx.encode_base64
 
 local _M = { _VERSION = '0.1' }
@@ -191,12 +192,22 @@ local function set_config(opts)
     return config
 end
 
+local function includes(text, key_word)
+    local matched, err = ngx_re_match(text, key_word, "jo")
+  
+    if not matched or err then
+      return false
+    end
+  
+    return true
+end
 
 _M.new_tab = new_tab
 _M.is_str = is_str
 _M.is_num = is_num
 _M.is_tab = is_tab
 _M.is_func = is_func
+_M.includes = includes
 _M.set_config = set_config
 _M.dict = dict
 _M.basic_auth = basic_auth
