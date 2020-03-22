@@ -82,6 +82,7 @@ local function prepare(url_parts, session, config)
         end
         local multipart_body= util.make_multipart_body(files, content_type)
         headers["content-type"] = content_type
+        headers["content-length"] = #multipart_body
         content = multipart_body
     else
         content = body

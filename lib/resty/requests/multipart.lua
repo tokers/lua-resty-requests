@@ -272,12 +272,23 @@ function MultipartData:get_all()
 end
 
 
-function MultipartData:set_simple(name, value)
+function MultipartData:set_simple(name, value, filename, content_type)
+    local headers = {'Content-Disposition: form-data; name="' , name , '"'}
+    if filename then
+        headers[4] = '; filename="'
+        headers[5] = filename
+        headers[6] = '"'
+    end
+    if content_type then
+        headers[7] = "\r\ncontent-type: "
+        headers[8] = content_type
+    end
+    headers = concat(headers)
     if self._data.indexes[name] then
         self._data.data[self._data.indexes[name]] = {
-            name    = name,
-            value   = value,
-            headers = { 'Content-Disposition: form-data; name="' .. name .. '"' }
+            name = name,
+            value = value,
+            headers = {headers}
         }
 
     else
@@ -286,7 +297,7 @@ function MultipartData:set_simple(name, value)
         self._data.data[part_index] = {
             name    = name,
             value   = value,
-            headers = { 'Content-Disposition: form-data; name="' .. name .. '"' }
+            headers = {headers}
         }
     end
 end
