@@ -5,10 +5,13 @@ local pcall = pcall
 local pairs = pairs
 local error = error
 local rawget = rawget
+local ipairs = ipairs
+local require = require
 local setmetatable = setmetatable
 local lower = string.lower
 local ngx_gsub = ngx.re.gsub
 local base64 = ngx.encode_base64
+local Multipart = require("resty.requests.multipart")
 
 local _M = { _VERSION = '0.1' }
 
@@ -131,6 +134,9 @@ local function set_config(opts)
     -- 4) body
     config.body = opts.body
 
+    -- 4.1) files
+    config.files = opts.files
+
     -- 5) ssl verify
     config.ssl = opts.ssl
 
@@ -192,6 +198,19 @@ local function set_config(opts)
 end
 
 
+local function make_multipart_body(files, content_type)
+    local m = Multipart("", content_type)
+    for _, v in ipairs(files) do
+        m:set_simple(v[1], v[2], v[3], v[4])
+    end
+    return m:tostring()
+end
+
+
+local function choose_boundary()
+    return string.sub(tostring({}), 10)
+end
+
 _M.new_tab = new_tab
 _M.is_str = is_str
 _M.is_num = is_num
@@ -206,5 +225,7 @@ _M.STATE = STATE
 _M.STATE_NAME = STATE_NAME
 _M.HTTP10 = HTTP10
 _M.HTTP11 = HTTP11
+_M.make_multipart_body = make_multipart_body
+_M.choose_boundary = choose_boundary
 
 return _M

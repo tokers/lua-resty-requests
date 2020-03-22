@@ -69,11 +69,20 @@ local function prepare(url_parts, session, config)
     local content
     local json = config.json
     local body = config.body
+    local files = config.files
 
     if json then
         content = cjson.encode(json)
         headers["content-length"] = #content
         headers["content-type"] = "application/json"
+    elseif files and is_tab(files) then
+        local content_type = headers["content-type"]
+        if not content_type then
+            content_type = "multipart/form-data; boundary="..util.choose_boundary()
+        end
+        local multipart_body= util.make_multipart_body(files, content_type)
+        headers["content-type"] = content_type
+        content = multipart_body
     else
         content = body
         if is_func(body) then
