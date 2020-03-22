@@ -9,6 +9,8 @@ local ipairs = ipairs
 local require = require
 local setmetatable = setmetatable
 local lower = string.lower
+local str_sub = string.sub
+local tostring = tostring
 local ngx_gsub = ngx.re.gsub
 local base64 = ngx.encode_base64
 local Multipart = require("resty.requests.multipart")
@@ -208,7 +210,7 @@ end
 
 
 local function choose_boundary()
-    return string.sub(tostring({}), 10)
+    return str_sub(tostring({}), 10)
 end
 
 _M.new_tab = new_tab
@@ -219,13 +221,13 @@ _M.is_func = is_func
 _M.set_config = set_config
 _M.dict = dict
 _M.basic_auth = basic_auth
+_M.make_multipart_body = make_multipart_body
+_M.choose_boundary = choose_boundary
 _M.DEFAULT_TIMEOUTS = DEFAULT_TIMEOUTS
 _M.BUILTIN_HEADERS = BUILTIN_HEADERS
 _M.STATE = STATE
 _M.STATE_NAME = STATE_NAME
 _M.HTTP10 = HTTP10
 _M.HTTP11 = HTTP11
-_M.make_multipart_body = make_multipart_body
-_M.choose_boundary = choose_boundary
 
 return _M
