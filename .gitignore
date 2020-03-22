@@ -39,4 +39,7 @@ luac.out
 *.x86_64
 *.hex
 
+#develop env
+.idea
+
 t/servroot/*
