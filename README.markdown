@@ -166,6 +166,7 @@ The third param, an optional Lua table, which contains a number of  options:
     * a Lua string, or
     * a Lua function, without parameter and returns a piece of data (string) or an empty Lua string to represent EOF, or
     * a Lua table, each key-value pair will be concatenated with the "&", and Content-Type header will `"application/x-www-form-urlencoded"`
+* `files`, multipart/form upload file body, should be table contains more tables, like that: {{"name", file_body, "file_name", "file_type"},...}
 
 * `error_filter`, holds a Lua function which takes two parameters, `state` and `err`.
  the parameter `err` describes the error and `state` is always one of these values(represents the current stage):
