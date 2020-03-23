@@ -1,5 +1,3 @@
---https://github.com/pytpeng/lua-multipart
---fork from https://github.com/Kong/lua-multipart
 
 local setmetatable = setmetatable
 local tostring     = tostring
