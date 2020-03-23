@@ -1,17 +1,19 @@
 -- Copyright (C) Alex Zhang
 
+local multipart = require("resty.requests.multipart")
+
 local type = type
 local pcall = pcall
 local pairs = pairs
 local error = error
 local rawget = rawget
 local ipairs = ipairs
-local require = require
 local setmetatable = setmetatable
 local lower = string.lower
+local str_sub = string.sub
+local tostring = tostring
 local ngx_gsub = ngx.re.gsub
 local base64 = ngx.encode_base64
-local Multipart = require("resty.requests.multipart")
 
 local _M = { _VERSION = '0.1' }
 
@@ -92,7 +94,7 @@ end
 
 local function set_config(opts)
     opts = opts or {}
-    local config = new_tab(0, 14)
+    local config = new_tab(0, 15)
 
     -- 1) timeouts
     local timeouts = opts.timeouts
@@ -133,9 +135,6 @@ local function set_config(opts)
 
     -- 4) body
     config.body = opts.body
-
-    -- 4.1) files
-    config.files = opts.files
 
     -- 5) ssl verify
     config.ssl = opts.ssl
@@ -194,22 +193,26 @@ local function set_config(opts)
     -- 14) use_default_type
     config.use_default_type = opts.use_default_type ~= false
 
+    -- 15) files
+    config.files = opts.files
+
     return config
 end
 
 
 local function make_multipart_body(files, content_type)
-    local m = Multipart("", content_type)
-    for _, v in ipairs(files) do
-        m:set_simple(v[1], v[2], v[3], v[4])
+    local m = multipart("", content_type)
+    for i=1,#files do
+        m:set_simple(files[i][1], files[i][2], files[i][3], files[i][4])
     end
     return m:tostring()
 end
 
 
 local function choose_boundary()
-    return string.sub(tostring({}), 10)
+    return str_sub(tostring({}), 10)
 end
+
 
 _M.new_tab = new_tab
 _M.is_str = is_str
@@ -219,13 +222,13 @@ _M.is_func = is_func
 _M.set_config = set_config
 _M.dict = dict
 _M.basic_auth = basic_auth
+_M.make_multipart_body = make_multipart_body
+_M.choose_boundary = choose_boundary
 _M.DEFAULT_TIMEOUTS = DEFAULT_TIMEOUTS
 _M.BUILTIN_HEADERS = BUILTIN_HEADERS
 _M.STATE = STATE
 _M.STATE_NAME = STATE_NAME
 _M.HTTP10 = HTTP10
 _M.HTTP11 = HTTP11
-_M.make_multipart_body = make_multipart_body
-_M.choose_boundary = choose_boundary
 
 return _M
