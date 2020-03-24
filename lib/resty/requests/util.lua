@@ -202,9 +202,11 @@ end
 
 local function make_multipart_body(files, content_type)
     local m = multipart("", content_type)
-    for i=1,#files do
+
+    for i=1, #files do
         m:set_simple(files[i][1], files[i][2], files[i][3], files[i][4])
     end
+
     return m:tostring()
 end
 
