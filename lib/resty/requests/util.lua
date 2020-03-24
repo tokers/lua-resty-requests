@@ -7,7 +7,6 @@ local pcall = pcall
 local pairs = pairs
 local error = error
 local rawget = rawget
-local ipairs = ipairs
 local setmetatable = setmetatable
 local lower = string.lower
 local str_sub = string.sub
