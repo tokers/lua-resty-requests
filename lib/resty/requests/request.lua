@@ -79,9 +79,11 @@ local function prepare(url_parts, session, config)
 
     elseif files and is_tab(files) then
         local content_type = headers["content-type"]
+
         if not content_type then
             content_type = "multipart/form-data; boundary=" .. util.choose_boundary()
         end
+
         local multipart_body = util.make_multipart_body(files, content_type)
         headers["content-type"] = content_type
         headers["content-length"] = #multipart_body

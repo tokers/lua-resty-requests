@@ -1,6 +1,6 @@
 -- Copyright (C) Alex Zhang
 
-local multipart = require("resty.requests.multipart")
+local multipart = require "resty.requests.multipart"
 
 local type = type
 local pcall = pcall
