@@ -15,7 +15,6 @@ local function encode_files(files, data)
     local new_fields_index = 1
     local fields = util.to_key_value_list(data or {})
     files = util.to_key_value_list(files)
-
     for i=1, util.len(fields) do
         local field = fields[i][1]
         local val = fields[i][2]
@@ -27,10 +26,8 @@ local function encode_files(files, data)
             if not val[i] then
                 goto CONTINUE
             end
-
             new_fields[new_fields_index] = {field, val[i]}
             new_fields_index = new_fields_index + 1
-            
             ::CONTINUE::
         end
     end
@@ -71,7 +68,6 @@ local function encode_files(files, data)
         rf:make_multipart({content_type=ft})
         new_fields[new_fields_index] = rf
         new_fields_index = new_fields_index + 1
-
         ::CONTINUE::
     end
 
@@ -81,6 +77,5 @@ end
 
 
 _M.encode_files = encode_files
-
 
 return _M

@@ -17,7 +17,6 @@ end
 local function iter_base_func(fields, i)
     i = i + 1
     local field = fields[i]
-
     if field == nil then
         return
     end
@@ -45,7 +44,6 @@ local function encode_multipart_formdata(fields, boundary)
 
     body = body .. "--" .. boundary .. "--\r\n"
     local content_type = "multipart/form-data; boundary=" .. boundary
-
     return body, content_type
 end
 

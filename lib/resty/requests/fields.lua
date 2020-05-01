@@ -23,7 +23,7 @@ local function new(name, data, filename, headers, header_formatter)
         headers = headers or {},
         header_formatter = header_formatter or format_header_param_html5
     }
-
+    
     return setmetatable(self, mt)
 end
 
@@ -44,21 +44,18 @@ end
 
 
 local function _render_parts(self, headers_parts)
-    local parts = util.new_tab(2, 0)
-    local parts_index = 1
-
     if util.is_func(headers_parts) and not util.is_array(headers_parts) then
         headers_parts = util.to_key_value_list(headers_parts)
     end
 
+    local parts = util.new_tab(15, 0)
+    local parts_index = 1
     for i=1, util.len(headers_parts) do
         local name = headers_parts[i][1]
         local value = headers_parts[i][2]
-
         if value then
             parts[parts_index] = self.header_formatter(name, value)
         end
-
     end
 
     return concat(parts, "; ")
@@ -91,7 +88,6 @@ local function render_headers(self)
             lines[lines_index] = strformat("%s: %s", k, v)
             lines_index = lines_index + 1
         end
-
     end
 
     lines[lines_index] = "\r\n"

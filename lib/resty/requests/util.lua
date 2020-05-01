@@ -4,12 +4,9 @@ local pcall = pcall
 local pairs = pairs
 local error = error
 local rawget = rawget
-local ipairs = ipairs
 local require = require
 local setmetatable = setmetatable
 local lower = string.lower
-local str_sub = string.sub
-local tostring = tostring
 local ngx_gsub = ngx.re.gsub
 local base64 = ngx.encode_base64
 
@@ -219,16 +216,15 @@ local function set_config(opts)
     -- 15) files
     config.files = opts.files
 
-
     return config
 end
 
 
 local function to_key_value_list(value)
     if not value then
-        return nil or {}
+        return {}
     end
-    
+
     if not is_tab(value) then
         error("cannot encode objects that are not 2-tables")
     end
@@ -249,16 +245,13 @@ end
 
 
 local function is_inarray(str, array)
-    local ret = false
     for i=1, len(array) do
         if str == array[i] then
-            ret = true
-            break
+            return true
         end
-
     end
-
-    return ret
+    
+    return false
 end
 
 

@@ -78,7 +78,7 @@ local function prepare(url_parts, session, config)
         headers["content-length"] = #content
         headers["content-type"] = "application/json"
 
-    elseif files and is_tab(files) then
+    elseif files and util.is_array(files) then
         local multipart_body, content_type = models.encode_files(files, body)
         headers["content-type"] = content_type
         headers["content-length"] = #multipart_body
