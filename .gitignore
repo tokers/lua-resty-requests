@@ -41,5 +41,6 @@ luac.out
 
 #develop env
 .idea
+.vscode
 
 t/servroot/*

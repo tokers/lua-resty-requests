@@ -2,6 +2,7 @@
 
 local cjson = require "cjson.safe"
 local util = require "resty.requests.util"
+local models = require "resty.requests.models"
 
 local setmetatable = setmetatable
 local pairs = pairs
@@ -78,13 +79,7 @@ local function prepare(url_parts, session, config)
         headers["content-type"] = "application/json"
 
     elseif files and is_tab(files) then
-        local content_type = headers["content-type"]
-
-        if not content_type then
-            content_type = "multipart/form-data; boundary=" .. util.choose_boundary()
-        end
-
-        local multipart_body = util.make_multipart_body(files, content_type)
+        local multipart_body, content_type = models.encode_files(files, body)
         headers["content-type"] = content_type
         headers["content-length"] = #multipart_body
         content = multipart_body
