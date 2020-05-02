@@ -71,6 +71,7 @@ local function is_str(obj) return type(obj) == "string" end
 local function is_num(obj) return type(obj) == "number" end
 local function is_tab(obj) return type(obj) == "table" end
 local function is_func(obj) return type(obj) == "function" end
+local function is_userdata(obj) return type(obj) == "userdata" end
 
 
 local is_array_ok, tisarray = pcall(require, "table.isarray")
@@ -262,6 +263,7 @@ _M.is_tab = is_tab
 _M.is_func = is_func
 _M.is_array = is_array
 _M.is_inarray = is_inarray
+_M.is_userdata = is_userdata
 _M.set_config = set_config
 _M.len = len
 _M.dict = dict

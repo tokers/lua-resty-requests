@@ -420,3 +420,4 @@ See Also
 
 * upyun-resty: https://github.com/upyun/upyun-resty
 * httpipe: https://github.com/timebug/lua-resty-httpipe
+* python-requests: https://github.com/psf/requests

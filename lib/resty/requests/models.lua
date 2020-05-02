@@ -52,12 +52,12 @@ local function encode_files(files, data)
             fp = v
         end
 
-        if util.is_func(fp) then
+        if fp == nil then
+            goto CONTINUE
+        
+        elseif util.is_userdata(fp) and util.is_func(fp.read) then
             fdata = fp:read("*all")
             fp:close()
-        
-        elseif fp == nil then
-            goto CONTINUE
         
         else
             fdata = fp

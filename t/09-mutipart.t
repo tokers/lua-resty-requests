@@ -67,7 +67,43 @@ GET /t
 
 
 
-=== TEST 2: check the normal multipart POST request headers.
+=== TEST 2: test multipart upload file POST request with userdata fp.
+
+--- http_config eval: $::http_config
+
+--- config
+
+location /t {
+    content_by_lua_block {
+        local requests = require "resty.requests"
+        local cjson = require "cjson"
+        local url = "http://127.0.0.1:10086/t1"
+        local fp = io.open("t/multipart/t1.txt")
+        local r, err = requests.post(url,{files={{"name", {"t1.txt", fp,"text/txt", {testheader="i_am_test_header"}}}}, body={testbody1={pp=1}, testbody2={1,2,3}}})
+        if not r then
+            ngx.log(ngx.ERR, err)
+        end
+        local data, err = r:body()
+        ngx.say(data)
+    }
+}
+
+
+--- request
+GET /t
+
+--- status_code
+200
+
+--- response_body_like
+{\"--[a-z0-9]{8}[\s\S]*--[a-z0-9]{8}--[\s\S]+\"}
+
+--- no_error_log
+[error]
+
+
+
+=== TEST 3: check the normal multipart POST request headers.
 
 --- http_config eval: $::http_config
 
