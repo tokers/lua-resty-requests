@@ -5,8 +5,8 @@ local concat = table.concat
 local setmetatable = setmetatable
 local strformat = string.format
 
-local _M = { _VERSION = "0.0.1"}
-local mt = { __index = _M , _ID = "FIELDS"}
+local _M = { _VERSION = "0.0.1" }
+local mt = { __index = _M , _ID = "FIELDS" }
 
 local function format_header_param_html5(name, value)
     -- todo _replace_multiple

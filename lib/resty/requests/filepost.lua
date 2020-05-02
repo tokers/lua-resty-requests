@@ -5,7 +5,7 @@ local tostring = tostring
 local str_sub = string.sub
 local concat = table.concat
 
-local _M = { _VERSION = "0.0.1"}
+local _M = { _VERSION = "0.0.1" }
 
 local function choose_boundary()
     return str_sub(tostring({}), 10)
@@ -20,7 +20,7 @@ local function iter_base_func(fields, i)
     end
 
     local is_array = util.is_array(field)
-    if is_array or (is_array == "table" and not field._ID) then
+    if is_array == true or (is_array == "table" and not field._ID) then
         field = request_fields.from_table(field[1], field[2])
     end
 
