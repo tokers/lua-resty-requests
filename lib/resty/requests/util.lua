@@ -1,16 +1,12 @@
 -- Copyright (C) Alex Zhang
-
-local multipart = require "resty.requests.multipart"
-
 local type = type
 local pcall = pcall
 local pairs = pairs
 local error = error
 local rawget = rawget
+local require = require
 local setmetatable = setmetatable
 local lower = string.lower
-local str_sub = string.sub
-local tostring = tostring
 local ngx_gsub = ngx.re.gsub
 local base64 = ngx.encode_base64
 
@@ -33,6 +29,7 @@ if not ok then
         return {}
     end
 end
+
 
 local BUILTIN_HEADERS = {
     ["accept"]     = "*/*",
@@ -74,6 +71,30 @@ local function is_str(obj) return type(obj) == "string" end
 local function is_num(obj) return type(obj) == "number" end
 local function is_tab(obj) return type(obj) == "table" end
 local function is_func(obj) return type(obj) == "function" end
+
+
+local is_array_ok, tisarray = pcall(require, "table.isarray")
+local function is_array(obj) 
+    if not is_tab(obj) then
+        return false
+    end
+
+    if not is_array_ok then
+        return "table"
+    end
+
+    return tisarray(obj)
+end
+
+
+local nkeys_ok, nkeys = pcall(require, "table.nkeys")
+local function len(table)
+    if not nkeys_ok then
+        return #table
+    end
+
+    return nkeys(table)
+end
 
 
 local function dict(d, narr, nrec)
@@ -199,19 +220,38 @@ local function set_config(opts)
 end
 
 
-local function make_multipart_body(files, content_type)
-    local m = multipart("", content_type)
-
-    for i=1, #files do
-        m:set_simple(files[i][1], files[i][2], files[i][3], files[i][4])
+local function to_key_value_list(value)
+    if not value then
+        return {}
     end
 
-    return m:tostring()
+    if not is_tab(value) then
+        error("cannot encode objects that are not 2-tables")
+    end
+
+    if is_array(value) == true then
+        return value
+    end
+
+    local new_value = {}
+    local new_value_index = 1
+    for k, v in pairs(value) do
+        new_value[new_value_index] = {k, v}
+        new_value_index = new_value_index + 1
+    end
+
+    return new_value
 end
 
 
-local function choose_boundary()
-    return str_sub(tostring({}), 10)
+local function is_inarray(str, array)
+    for i=1, len(array) do
+        if str == array[i] then
+            return true
+        end
+    end
+
+    return false
 end
 
 
@@ -220,11 +260,13 @@ _M.is_str = is_str
 _M.is_num = is_num
 _M.is_tab = is_tab
 _M.is_func = is_func
+_M.is_array = is_array
+_M.is_inarray = is_inarray
 _M.set_config = set_config
+_M.len = len
 _M.dict = dict
 _M.basic_auth = basic_auth
-_M.make_multipart_body = make_multipart_body
-_M.choose_boundary = choose_boundary
+_M.to_key_value_list = to_key_value_list
 _M.DEFAULT_TIMEOUTS = DEFAULT_TIMEOUTS
 _M.BUILTIN_HEADERS = BUILTIN_HEADERS
 _M.STATE = STATE
