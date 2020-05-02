@@ -8,7 +8,6 @@ local strformat = string.format
 local _M = { _VERSION = "0.0.1"}
 local mt = { __index = _M , _ID = "FIELDS"}
 
-
 local function format_header_param_html5(name, value)
     -- todo _replace_multiple
     return strformat('%s="%s"', name, value)
@@ -23,7 +22,7 @@ local function new(name, data, filename, headers, header_formatter)
         headers = headers or {},
         header_formatter = header_formatter or format_header_param_html5
     }
-    
+
     return setmetatable(self, mt)
 end
 
@@ -100,6 +99,5 @@ _M.from_table = from_table
 _M.make_multipart = make_multipart
 _M.render_headers = render_headers
 _M._render_parts = _render_parts
-
 
 return _M

@@ -250,7 +250,7 @@ local function is_inarray(str, array)
             return true
         end
     end
-    
+
     return false
 end
 
@@ -273,6 +273,5 @@ _M.STATE = STATE
 _M.STATE_NAME = STATE_NAME
 _M.HTTP10 = HTTP10
 _M.HTTP11 = HTTP11
-
 
 return _M

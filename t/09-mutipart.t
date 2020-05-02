@@ -11,15 +11,9 @@ our $http_config = << 'EOC';
         location = /t1 {
             content_by_lua_block {
                 ngx.req.read_body()
-                local multipart = require("resty.requests.multipart")
-                local content_type = ngx.req.get_headers()["content-type"]
-                local body = ngx.req.get_body_data()
-                local m = multipart(body, content_type)
-                local parameter = m:get("name")
-                ngx.print(parameter.headers)
-                ngx.print("\r\n")
-                local file_body = parameter.value
-                ngx.print(file_body)
+                local cjson = require "cjson"
+                local body = ngx.req.get_post_args()
+                ngx.say(cjson.encode(body))
             }
         }
         location = /t2 {
@@ -44,17 +38,17 @@ __DATA__
 location /t {
     content_by_lua_block {
         local requests = require "resty.requests"
+        local cjson = require "cjson"
         local url = "http://127.0.0.1:10086/t1"
         local f = io.open("t/multipart/t1.txt")
         local file_body = f:read("*all")
         f:close()
-        local r, err = requests.post(url,{files={{"name", file_body, "t1.txt", "text/txt"}}})
+        local r, err = requests.post(url,{files={{"name", {"t1.txt", file_body,"text/txt", {testheader="i_am_test_header"}}}}, body={testbody1={pp=1}, testbody2={1,2,3}}})
         if not r then
             ngx.log(ngx.ERR, err)
         end
-
         local data, err = r:body()
-        ngx.print(data)
+        ngx.say(data)
     }
 }
 
@@ -64,9 +58,10 @@ GET /t
 
 --- status_code
 200
---- response_body eval
-qq{Content-Disposition: form-data; name="name"; filename="t1.txt"content-type: text/txt\r
-hello world};
+
+--- response_body_like
+{\"--[a-z0-9]{8}[\s\S]*--[a-z0-9]{8}--[\s\S]+\"}
+
 --- no_error_log
 [error]
 
@@ -82,7 +77,7 @@ location /t {
     content_by_lua_block {
         local requests = require "resty.requests"
         local url = "http://127.0.0.1:10086/t2"
-        local r, err = requests.post(url,{files={{"name", "123", "t2.txt", "text/txt"}}})
+        local r, err = requests.post(url,{files={{"name", {"t2.txt", "hello world", "text/txt"}}}})
         if not r then
             ngx.log(ngx.ERR, err)
         end

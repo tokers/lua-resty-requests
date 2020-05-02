@@ -5,9 +5,7 @@ local tostring = tostring
 local str_sub = string.sub
 local concat = table.concat
 
-
 local _M = { _VERSION = "0.0.1"}
-
 
 local function choose_boundary()
     return str_sub(tostring({}), 10)
@@ -50,6 +48,5 @@ end
 
 _M.encode_multipart_formdata = encode_multipart_formdata
 _M.choose_boundary = choose_boundary
-
 
 return _M
