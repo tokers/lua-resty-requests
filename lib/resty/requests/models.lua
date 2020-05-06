@@ -2,6 +2,8 @@ local util = require "resty.requests.util"
 local filepost = require "resty.requests.filepost"
 local request_fields = require "resty.requests.fields"
 
+local error = error
+
 local _M = { _VERSION = "0.0.1" }
 
 
@@ -10,7 +12,7 @@ local function encode_files(files, data)
         error("Files must be provided.")
     end
 
-    local new_fields = util.new_tab(30, 0)
+    local new_fields = {}
     local new_fields_index = 1
     local fields = util.to_key_value_list(data or {})
     files = util.to_key_value_list(files)

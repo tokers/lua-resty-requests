@@ -47,7 +47,7 @@ local function _render_parts(self, headers_parts)
         headers_parts = util.to_key_value_list(headers_parts)
     end
 
-    local parts = util.new_tab(15, 0)
+    local parts = {}
     local parts_index = 1
     for i=1, util.len(headers_parts) do
         local name = headers_parts[i][1]
@@ -70,7 +70,7 @@ end
 
 
 local function render_headers(self)
-    local lines = util.new_tab(10, 0)
+    local lines = {}
     local lines_index = 1
     local sort_keys = {"Content-Disposition", "Content-Type", "Content-Location"}
 
