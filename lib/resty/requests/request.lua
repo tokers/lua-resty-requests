@@ -2,6 +2,7 @@
 
 local cjson = require "cjson.safe"
 local util = require "resty.requests.util"
+local models = require "resty.requests.models"
 
 local setmetatable = setmetatable
 local pairs = pairs
@@ -70,10 +71,19 @@ local function prepare(url_parts, session, config)
     local json = config.json
     local body = config.body
 
+    local files = config.files
+
     if json then
         content = cjson.encode(json)
         headers["content-length"] = #content
         headers["content-type"] = "application/json"
+
+    elseif files and util.is_array(files) then
+        local multipart_body, content_type = models.encode_files(files, body)
+        headers["content-type"] = content_type
+        headers["content-length"] = #multipart_body
+        content = multipart_body
+
     else
         content = body
         if is_func(body) then

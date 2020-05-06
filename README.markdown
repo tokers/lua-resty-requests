@@ -12,27 +12,28 @@ resty -e 'print(require "resty.requests".get{ url = "https://github.com", stream
 Table of Contents
 =================
 
-* [Name](#name)
-* [Status](#status)
-* [Features](#features)
-* [Synopsis](#synopsis)
-* [Installation](#installation)
-* [Methods](#methods)
-    * [request](#request)
-    * [state](#state)
-    * [get](#get)
-    * [head](#head)
-    * [post](#post)
-    * [put](#put)
-    * [delete](#delete)
-    * [options](#options)
-    * [patch](#patch)
-* [Response Object](#response-object)
-* [Session](#session)
-* [TODO](#todo)
-* [Author](#author)
-* [Copyright and License](#copyright-and-license)
-* [See Also](#see-also)
+- [Name](#name)
+- [Table of Contents](#table-of-contents)
+- [Status](#status)
+- [Features](#features)
+- [Synopsis](#synopsis)
+- [Installation](#installation)
+- [Methods](#methods)
+    - [request](#request)
+    - [state](#state)
+    - [get](#get)
+    - [head](#head)
+    - [post](#post)
+    - [put](#put)
+    - [delete](#delete)
+    - [options](#options)
+    - [patch](#patch)
+- [Response Object](#response-object)
+- [Session](#session)
+- [TODO](#todo)
+- [Author](#author)
+- [Copyright and License](#copyright-and-license)
+- [See Also](#see-also)
 
 Status
 ======
@@ -166,6 +167,8 @@ The third param, an optional Lua table, which contains a number of  options:
     * a Lua string, or
     * a Lua function, without parameter and returns a piece of data (string) or an empty Lua string to represent EOF, or
     * a Lua table, each key-value pair will be concatenated with the "&", and Content-Type header will `"application/x-www-form-urlencoded"`
+* `files`, multipart/form upload file body, should be table contains more multi-tables, like that: {{"name", {"file_name",fp, "file_type"}},...}
+    * `fp` is binary file body or file func with method `read`
 
 * `error_filter`, holds a Lua function which takes two parameters, `state` and `err`.
  the parameter `err` describes the error and `state` is always one of these values(represents the current stage):
@@ -417,3 +420,4 @@ See Also
 
 * upyun-resty: https://github.com/upyun/upyun-resty
 * httpipe: https://github.com/timebug/lua-resty-httpipe
+* python-requests: https://github.com/psf/requests
